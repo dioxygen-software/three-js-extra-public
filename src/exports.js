@@ -3,3 +3,4 @@ export * from "./materials/MeshRGBADepthMaterial";
 export * from "./materials/MeshViewPositionMaterial";
 export * from "./materials/MeshWorldNormalMaterial";
 export * from "./materials/MeshWorldPositionMaterial";
+export * from "./modifiers/EdgeSplitModifier";

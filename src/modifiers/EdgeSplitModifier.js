@@ -1,9 +1,5 @@
-import {
-	BufferAttribute,
-	BufferGeometry,
-	Vector3
-} from 'three';
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils'
+import { BufferAttribute, BufferGeometry, Vector3 } from 'three';
+import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
 const _A = new Vector3();
 const _B = new Vector3();

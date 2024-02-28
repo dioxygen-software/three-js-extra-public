@@ -1,5 +1,5 @@
 import { ShaderMaterial, UniformsUtils, ShaderLib, TangentSpaceNormalMap, Vector2, MeshDepthMaterial, RGBADepthPacking, Matrix4, Vector3, BufferAttribute, BufferGeometry } from 'three';
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
+import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 /**
      * @author Maxime Quiblier / http://github.com/maximeq

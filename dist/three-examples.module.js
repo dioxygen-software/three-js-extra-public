@@ -596,3 +596,4 @@ class EdgeSplitModifier {
 }
 
 export { EdgeSplitModifier, MeshNormalDepthMaterial, MeshRGBADepthMaterial, MeshViewPositionMaterial, MeshWorldNormalMaterial, MeshWorldPositionMaterial };
+//# sourceMappingURL=three-examples.module.js.map

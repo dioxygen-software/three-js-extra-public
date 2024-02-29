@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "es6",
+        "target": "ESNext",
+        "moduleResolution": "Bundler",
+        "allowJs": true,
+        "checkJs": true,
+        "outDir": "dist/types",
+        "sourceMap": true,
+        "declaration": true,
+        "declarationMap": true,
+        "strictNullChecks": true
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/node_modules/*"
+    ]
+}

@@ -2,8 +2,8 @@
   "name": "@dioxygen-software/three-examples",
   "version": "1.130.0",
   "description": "Extra examples for Three JS",
-  "main": "dist/exports.js",
-  "module": "dist/exports.js",
+  "main": "dist/three-examples.module.js",
+  "module": "dist/three-examples.module.js",
   "type": "module",
   "scripts": {
     "build": "npx rollup -c"
@@ -12,8 +12,9 @@
     "three": "0.130.x"
   },
   "devDependencies": {
-    "rollup": "^3.15.0",
     "@rollup/plugin-commonjs": "^24.0.1",
-    "@rollup/plugin-node-resolve": "^15.0.1"
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "rollup": "^3.15.0"
   }
 }

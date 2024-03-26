@@ -1,24 +1,41 @@
 import commonjs from "@rollup/plugin-commonjs";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
+import del from 'rollup-plugin-delete'
+import { dts } from "rollup-plugin-dts";
 
-const NAME = "three-examples"
+const PACKAGE_NAME = "three-examples"
 
-export default {
-    input: "./src/exports.ts",
-    plugins: [
-        typescript(),
-        commonjs(),
-        nodeResolve(),
-    ],
-    external: [
-        /node_modules/,
-    ],
-    output: [
-        {
-            file: `./dist/${NAME}.module.js`,
-            format: "esm",
-            sourcemap: true,
+export default [
+
+    // bundle code
+    {
+        input: {
+            'module': "./src/exports.ts",
         },
-    ],
-}
+        plugins: [
+            del({ targets: './dist/*' }),
+            typescript(),
+            commonjs(),
+            nodeResolve(),
+        ],
+        external: [
+            /node_modules/,
+        ],
+        output: [
+            {
+                dir: `./dist`,
+                entryFileNames: `${PACKAGE_NAME}.[name].js`,
+                format: "esm",
+                sourcemap: true,
+            },
+        ],
+    },
+
+    // bundle types
+    {
+        input: "./dist/types/exports.d.ts",
+        output: [{ file: `dist/${PACKAGE_NAME}.module.d.ts`, format: "es" }],
+        plugins: [dts()],
+    },
+]

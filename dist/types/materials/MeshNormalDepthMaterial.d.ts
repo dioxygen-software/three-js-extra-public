@@ -11,12 +11,14 @@ export class MeshNormalDepthMaterial extends ShaderMaterial {
     bumpMap: any;
     bumpScale: number;
     normalMap: any;
-    normalMapType: import("three").NormalMapTypes;
+    normalMapType: 0;
     normalScale: Vector2;
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
+    morphTargets: boolean;
+    morphNormals: boolean;
     isMeshNormalMaterial: boolean;
     isMeshNormalDepthMaterial: boolean;
 }

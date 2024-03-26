@@ -4,7 +4,7 @@ import typescript from "@rollup/plugin-typescript";
 import del from 'rollup-plugin-delete'
 import { dts } from "rollup-plugin-dts";
 
-const PACKAGE_NAME = "three-js-extra-free"
+const PACKAGE_NAME = "three-js-extra-public"
 
 export default [
 

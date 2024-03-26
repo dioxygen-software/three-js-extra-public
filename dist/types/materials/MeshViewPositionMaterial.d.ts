@@ -15,6 +15,7 @@ export class MeshViewPositionMaterial extends ShaderMaterial {
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
+    morphTargets: boolean;
 }
 import { ShaderMaterial } from 'three';
 //# sourceMappingURL=MeshViewPositionMaterial.d.ts.map

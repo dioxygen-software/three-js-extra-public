@@ -8,6 +8,7 @@ export class MeshWorldPositionMaterial extends ShaderMaterial {
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
+    morphTargets: boolean;
     isMeshDepthMaterial: boolean;
     isMeshWorldPositionMaterial: boolean;
 }

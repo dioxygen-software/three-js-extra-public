@@ -1,4 +1,3 @@
-import * as three from 'three';
 import { ShaderMaterial, Vector2, MeshDepthMaterial } from 'three';
 
 /**
@@ -14,12 +13,14 @@ declare class MeshNormalDepthMaterial extends ShaderMaterial {
     bumpMap: any;
     bumpScale: number;
     normalMap: any;
-    normalMapType: three.NormalMapTypes;
+    normalMapType: 0;
     normalScale: Vector2;
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
+    morphTargets: boolean;
+    morphNormals: boolean;
     isMeshNormalMaterial: boolean;
     isMeshNormalDepthMaterial: boolean;
 }
@@ -50,6 +51,7 @@ declare class MeshViewPositionMaterial extends ShaderMaterial {
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
+    morphTargets: boolean;
 }
 
 /**
@@ -67,12 +69,14 @@ declare class MeshWorldNormalMaterial extends ShaderMaterial {
     bumpMap: any;
     bumpScale: number;
     normalMap: any;
-    normalMapType: three.NormalMapTypes;
+    normalMapType: 0;
     normalScale: Vector2;
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
+    morphTargets: boolean;
+    morphNormals: boolean;
     isMeshNormalMaterial: boolean;
     isMeshWorldNormalMaterial: boolean;
     /**
@@ -93,6 +97,7 @@ declare class MeshWorldPositionMaterial extends ShaderMaterial {
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
+    morphTargets: boolean;
     isMeshDepthMaterial: boolean;
     isMeshWorldPositionMaterial: boolean;
 }

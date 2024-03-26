@@ -1,12 +1,12 @@
 {
-  "name": "@dioxygen-software/three-examples",
+  "name": "@dioxygen-software/three-js-extra-free",
   "version": "1.130.0",
   "description": "Extra examples for Three JS",
-  "main": "dist/three-examples.module.js",
-  "module": "dist/three-examples.module.js",
+  "main": "dist/three-js-extra-free.module.js",
+  "module": "dist/three-js-extra-free.module.js",
   "type": "module",
   "scripts": {
-    "build": "npx rollup -c"
+    "build": "npx rollup -c rollup.config.js"
   },
   "peerDependencies": {
     "three": "0.130.x"

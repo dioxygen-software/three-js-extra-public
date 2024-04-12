@@ -6,22 +6,24 @@
      *
      *
      */
-export class MeshNormalDepthMaterial extends ShaderMaterial {
+export class MeshNormalDepthMaterial {
     constructor(parameters: any);
     bumpMap: any;
     bumpScale: number;
     normalMap: any;
-    normalMapType: 0;
-    normalScale: Vector2;
+    normalMapType: any;
+    normalScale: any;
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
+    wireframe: boolean;
+    wireframeLinewidth: number;
+    fog: boolean;
+    lights: boolean;
     skinning: boolean;
     morphTargets: boolean;
     morphNormals: boolean;
     isMeshNormalMaterial: boolean;
     isMeshNormalDepthMaterial: boolean;
 }
-import { ShaderMaterial } from 'three';
-import { Vector2 } from 'three';
 //# sourceMappingURL=MeshNormalDepthMaterial.d.ts.map

@@ -1,4 +1,63 @@
-import { ShaderMaterial, Vector2, MeshDepthMaterial } from 'three';
+/**
+ * @author Max Godefroy <max@godefroy.net>
+ */
+declare class ConeFrustum {
+    /**
+     * @param base      {?Vector3}
+     * @param axis      {?Vector3}
+     * @param height    {?number}
+     * @param radius0   {?number}
+     * @param radius1   {?number}
+     */
+    constructor(base: any, axis: any, height: any, radius0: any, radius1: any);
+    /**
+     * @param center0   {!Vector3}
+     * @param radius0   {number}
+     * @param center1   {!Vector3}
+     * @param radius1   {number}
+     * @returns {ConeFrustum}
+     */
+    static fromCapsule(center0: any, radius0: any, center1: any, radius1: any): any;
+    /**
+     *  Project the given point on the axis, in a direction orthogonal to the cone frustum surface.
+     **/
+    orthogonalProject(p: any, target: any): void;
+    /**
+     * @param frustum   {!ConeFrustum}
+     */
+    copy(frustum: any): void;
+    clone(): void;
+    empty(): boolean;
+    /**
+     * @param target    {?Box3}
+     * @returns {!Box3}
+     */
+    getBoundingBox(target: any): any;
+    /**
+     * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
+     *
+     * @param {!Vector3} origin		The origin for the current coordinate space
+     *
+     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
+     */
+    computeOptimisedBoundingCube(origin: any): any;
+    /**
+     * @param {!Vector3} center0
+     * @param {!number} radius0
+     * @param {!Vector3} center1
+     * @param {!number} radius1
+     * @param {?Vector3} origin		The origin for the current coordinate space. Can be null.
+     * @param {?number} minScale
+     *
+     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
+     */
+    static computeOptimisedDownscalingBoundingCube(center0: any, radius0: any, center1: any, radius1: any, origin: any, minScale: any): any;
+    /**
+     * @param frustum   {!ConeFrustum}
+     * @returns {boolean}
+     */
+    equals(frustum: any): any;
+}
 
 /**
      * @author Maxime Quiblier / http://github.com/maximeq
@@ -8,16 +67,20 @@ import { ShaderMaterial, Vector2, MeshDepthMaterial } from 'three';
      *
      *
      */
-declare class MeshNormalDepthMaterial extends ShaderMaterial {
+declare class MeshNormalDepthMaterial {
     constructor(parameters: any);
     bumpMap: any;
     bumpScale: number;
     normalMap: any;
-    normalMapType: 0;
-    normalScale: Vector2;
+    normalMapType: any;
+    normalScale: any;
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
+    wireframe: boolean;
+    wireframeLinewidth: number;
+    fog: boolean;
+    lights: boolean;
     skinning: boolean;
     morphTargets: boolean;
     morphNormals: boolean;
@@ -30,7 +93,7 @@ declare class MeshNormalDepthMaterial extends ShaderMaterial {
  * Material packing depth as rgba values.
  * It is basically just MeshDepthMaterial with depthPacking at THREE.RGBADepthPacking
  */
-declare class MeshRGBADepthMaterial extends MeshDepthMaterial {
+declare class MeshRGBADepthMaterial {
     constructor(parameters: any);
 }
 
@@ -45,11 +108,15 @@ declare class MeshRGBADepthMaterial extends MeshDepthMaterial {
      *                            depth packing does only provide methods to store in [0,1[ To recover the view coordinate, you need to do
      *                            x = 4*unpackRGBAToDepth(rgba) - 1;
      */
-declare class MeshViewPositionMaterial extends ShaderMaterial {
+declare class MeshViewPositionMaterial {
     constructor(parameters: any);
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
+    wireframe: boolean;
+    wireframeLinewidth: number;
+    fog: boolean;
+    lights: boolean;
     skinning: boolean;
     morphTargets: boolean;
 }
@@ -64,16 +131,20 @@ declare class MeshViewPositionMaterial extends ShaderMaterial {
      * If you don't want to do it by yourself, just call MeshWorldNormalMaterial.updateMeshOnBeforeRender on any mesh using this material.
      * see MeshWorldNormalMaterial.updateMeshOnBeforeRender for more details.
      */
-declare class MeshWorldNormalMaterial extends ShaderMaterial {
+declare class MeshWorldNormalMaterial {
     constructor(parameters: any);
     bumpMap: any;
     bumpScale: number;
     normalMap: any;
-    normalMapType: 0;
-    normalScale: Vector2;
+    normalMapType: any;
+    normalScale: any;
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
+    wireframe: boolean;
+    wireframeLinewidth: number;
+    fog: boolean;
+    lights: boolean;
     skinning: boolean;
     morphTargets: boolean;
     morphNormals: boolean;
@@ -91,11 +162,15 @@ declare class MeshWorldNormalMaterial extends ShaderMaterial {
  * @author Maxime Quiblier / http://github.com/maximeq
  *
  */
-declare class MeshWorldPositionMaterial extends ShaderMaterial {
+declare class MeshWorldPositionMaterial {
     constructor(parameters: any);
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
+    wireframe: boolean;
+    wireframeLinewidth: number;
+    fog: boolean;
+    lights: boolean;
     skinning: boolean;
     morphTargets: boolean;
     isMeshDepthMaterial: boolean;
@@ -106,4 +181,4 @@ declare class EdgeSplitModifier {
     modify(geometry: any, cutOffAngle: any, tryKeepNormals?: boolean): any;
 }
 
-export { EdgeSplitModifier, MeshNormalDepthMaterial, MeshRGBADepthMaterial, MeshViewPositionMaterial, MeshWorldNormalMaterial, MeshWorldPositionMaterial };
+export { ConeFrustum, EdgeSplitModifier, MeshNormalDepthMaterial, MeshRGBADepthMaterial, MeshViewPositionMaterial, MeshWorldNormalMaterial, MeshWorldPositionMaterial };

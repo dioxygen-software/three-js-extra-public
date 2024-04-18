@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Sphere Geometries</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "../node_modules/three/build/three.module.js",
+                "three/": "../node_modules/three/",
+                "@dioxygen-software/three-js-extra-public": "../dist/three-js-extra-public.module.js",
+                "dat.gui": "../node_modules/dat.gui/build/dat.gui.module.js"
+            }
+        }
+    </script>
+</head>
+
+<script type="module">
+
+    import { MeshPhongMaterial, Mesh, SphereBufferGeometry, SmoothShading, FlatShading } from "three"
+    import { IcosahedronSphereBufferGeometry, RoundedCubeBufferGeometry, SpherifiedCubeBufferGeometry } from "@dioxygen-software/three-js-extra-public"
+    import * as dat from "dat.gui";
+
+    // geometry is kept as a global variable to be used in the following script.
+    var geometry = new IcosahedronSphereBufferGeometry();
+    var material = new MeshPhongMaterial({
+        wireframe: true
+    });
+
+    var mesh = new Mesh(geometry, material);
+    globalThis.mesh = mesh;
+
+    // init GUI to change the sphere
+    var gui = new dat.GUI();;
+
+    var SphereControls = function () {
+        this.model = "Icosahedron"
+        this.radius = 10;
+        this.style = "Wireframe";
+    };
+    var IcosahedronControls = function () {
+        this.subdivisionLevel = 0;
+    }
+    var OtherSpheresControls = function () {
+        this.segments = 2;
+    }
+
+    var sphereControls = new SphereControls();
+    var icosahedronControls = new IcosahedronControls();
+    var otherSpheresControls = new OtherSpheresControls();
+    var folder = gui.addFolder('Global Controls');
+    var folderIco = gui.addFolder('Icosahedron Controls');
+    var folderOsp = gui.addFolder('Other Sphere Controls');
+
+    var genGeometry = function () {
+        mesh.geometry.dispose();
+        if (sphereControls.model == "Icosahedron") {
+            mesh.geometry = new IcosahedronSphereBufferGeometry(
+                sphereControls.radius,
+                icosahedronControls.subdivisionLevel
+            );
+        }
+        else if (sphereControls.model == "Rounded Cube") {
+            mesh.geometry = new RoundedCubeBufferGeometry(
+                sphereControls.radius,
+                otherSpheresControls.segments
+            );
+        }
+        else if (sphereControls.model == "Classic") {
+            mesh.geometry = new SphereBufferGeometry(
+                sphereControls.radius,
+                otherSpheresControls.segments,
+                otherSpheresControls.segments
+            );
+        }
+        else if (sphereControls.model == "Spherified Cube") {
+            mesh.geometry = new SpherifiedCubeBufferGeometry(
+                sphereControls.radius,
+                otherSpheresControls.segments,
+                otherSpheresControls.segments
+            );
+        }
+    }
+
+    folder.add(sphereControls, 'model', ["Classic", "Rounded Cube", "Icosahedron", "Spherified Cube"]).onChange(function () {
+        genGeometry();
+        updateShadow();
+    });
+    folder.add(sphereControls, 'radius').min(1).max(20).step(1).onChange(function () {
+        genGeometry();
+        updateShadow();
+    });
+    folderIco.add(icosahedronControls, 'subdivisionLevel').min(0).max(6).step(1).onChange(function () {
+        genGeometry();
+        updateShadow();
+    });
+    folderOsp.add(otherSpheresControls, 'segments').min(1).max(20).step(1).onChange(function () {
+        genGeometry();
+        updateShadow();
+    });
+    folder.add(sphereControls, 'style', ["Wireframe", "Smooth", "Flat"]).onChange(function () {
+        mesh.material.wireframe = sphereControls.style === "Wireframe";
+        mesh.material.shading = sphereControls.style === "Smooth" ? SmoothShading : FlatShading;
+    });
+
+    genGeometry();
+
+    folder.open();
+
+</script>
+
+<!-- Main script containing js setup for the page -->
+<script type="module" src="./js/main-three-script.js"></script>
+
+<body>
+    <div id="info">
+        <a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - <a href="https://github.com/BWagner310/three-js-sphere-geometries"
+            target="_blank" rel="noopener">THREE Sphere geometries</a> - Basic example
+    </div>
+</body>
+
+<style>
+    body {
+        color: #000;
+        font-family: Monospace;
+        font-size: 13px;
+        text-align: center;
+        font-weight: bold;
+
+        background-color: #fff;
+        margin: 0px;
+        overflow: hidden;
+    }
+
+    #info {
+        color: #000;
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 5px;
+
+    }
+
+    a {
+        color: red;
+    }
+</style>
+
+</html>

@@ -1,3 +1,5 @@
+import { IcosahedronBufferGeometry, BufferGeometry } from 'three';
+
 /**
  * @author Max Godefroy <max@godefroy.net>
  */
@@ -57,6 +59,24 @@ declare class ConeFrustum {
      * @returns {boolean}
      */
     equals(frustum: any): any;
+}
+
+/**
+ * @author baptistewagner & lucassort
+ */
+declare class IcosahedronSphereBufferGeometry extends IcosahedronBufferGeometry {
+    constructor(radius: any, subdivisionsLevel: any);
+}
+
+/**
+ * @author baptistewagner & lucassort
+ */
+declare class RoundedCubeBufferGeometry extends BufferGeometry {
+    constructor(radius: any, widthHeightSegments: any);
+}
+
+declare class SpherifiedCubeBufferGeometry extends BufferGeometry {
+    constructor(radius: any, widthHeightSegments: any);
 }
 
 declare class Cone {
@@ -198,4 +218,4 @@ declare class EdgeSplitModifier {
     modify(geometry: any, cutOffAngle: any, tryKeepNormals?: boolean): any;
 }
 
-export { Cone, ConeFrustum, EdgeSplitModifier, MeshNormalDepthMaterial, MeshRGBADepthMaterial, MeshViewPositionMaterial, MeshWorldNormalMaterial, MeshWorldPositionMaterial };
+export { Cone, ConeFrustum, EdgeSplitModifier, IcosahedronSphereBufferGeometry, MeshNormalDepthMaterial, MeshRGBADepthMaterial, MeshViewPositionMaterial, MeshWorldNormalMaterial, MeshWorldPositionMaterial, RoundedCubeBufferGeometry, SpherifiedCubeBufferGeometry };

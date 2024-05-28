@@ -8,23 +8,17 @@
      * If you don't want to do it by yourself, just call MeshWorldNormalMaterial.updateMeshOnBeforeRender on any mesh using this material.
      * see MeshWorldNormalMaterial.updateMeshOnBeforeRender for more details.
      */
-export class MeshWorldNormalMaterial {
+export class MeshWorldNormalMaterial extends ShaderMaterial {
     constructor(parameters: any);
     bumpMap: any;
     bumpScale: number;
     normalMap: any;
-    normalMapType: any;
-    normalScale: any;
+    normalMapType: import("three").NormalMapTypes;
+    normalScale: Vector2;
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
-    wireframe: boolean;
-    wireframeLinewidth: number;
-    fog: boolean;
-    lights: boolean;
     skinning: boolean;
-    morphTargets: boolean;
-    morphNormals: boolean;
     isMeshNormalMaterial: boolean;
     isMeshWorldNormalMaterial: boolean;
     /**
@@ -34,4 +28,6 @@ export class MeshWorldNormalMaterial {
      */
     updateMeshOnBeforeRender: (mesh: any) => void;
 }
+import { ShaderMaterial } from 'three';
+import { Vector2 } from 'three';
 //# sourceMappingURL=MeshWorldNormalMaterial.d.ts.map

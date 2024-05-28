@@ -1,17 +1,29 @@
+import { Vector3 } from "three";
 export declare class Cone {
+    v: Vector3;
+    axis: Vector3;
+    theta: number;
+    inf: number;
+    sup: number;
+    cosTheta: number;
     /**
-     *  @param {Vector3} v The cone origin
-     *  @param {Vector3} axis The axis, normalized.
-     *  @param {number} theta The cone angle
-     *  @param {number} sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
-     *  @param {number} inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
+     *  @param v The cone origin
+     *  @param axis The axis, normalized.
+     *  @param theta The cone angle
+     *  @param sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
+     *  @param inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
      */
-    constructor(v: any, axis: any, theta: any, inf: any, sup: any);
-    set(v: any, axis: any, theta: any, inf: any, sup: any): this;
+    constructor(v?: Vector3, axis?: Vector3, theta?: number, inf?: number, sup?: number);
+    set(v: Vector3, axis: Vector3, theta: number, inf: number, sup: number): this;
     clone(): Cone;
-    copy(cone: any): this;
+    copy(cone: Cone): Cone;
     empty(): boolean;
-    getBoundingBox(target: any): void;
-    equals(cone: any): any;
+    getBoundingBox(target: Vector3): void;
+    equals(cone: Cone): boolean;
+}
+declare module "three" {
+    interface Ray {
+        intersectCone(cone: Cone, target: Vector3): Vector3 | null;
+    }
 }
 //# sourceMappingURL=Cone.d.ts.map

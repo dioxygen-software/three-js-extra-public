@@ -1,38 +1,23 @@
+import { Box3, Vector3 } from "three";
 /**
  * @author Max Godefroy <max@godefroy.net>
  */
 export declare class ConeFrustum {
-    /**
-     * @param base      {?Vector3}
-     * @param axis      {?Vector3}
-     * @param height    {?number}
-     * @param radius0   {?number}
-     * @param radius1   {?number}
-     */
-    constructor(base: any, axis: any, height: any, radius0: any, radius1: any);
-    /**
-     * @param center0   {!Vector3}
-     * @param radius0   {number}
-     * @param center1   {!Vector3}
-     * @param radius1   {number}
-     * @returns {ConeFrustum}
-     */
-    static fromCapsule(center0: any, radius0: any, center1: any, radius1: any): any;
+    base: Vector3;
+    axis: Vector3;
+    height: number;
+    radius0: number;
+    radius1: number;
+    constructor(base?: Vector3, axis?: Vector3, height?: number, radius0?: number, radius1?: number);
+    static fromCapsule(center0: Vector3, radius0: number, center1: Vector3, radius1: number): ConeFrustum;
     /**
      *  Project the given point on the axis, in a direction orthogonal to the cone frustum surface.
      **/
-    orthogonalProject(p: any, target: any): void;
-    /**
-     * @param frustum   {!ConeFrustum}
-     */
-    copy(frustum: any): void;
+    orthogonalProject(p: Vector3, target: Vector3): void;
+    copy(frustum: ConeFrustum): void;
     clone(): void;
     empty(): boolean;
-    /**
-     * @param target    {?Box3}
-     * @returns {!Box3}
-     */
-    getBoundingBox(target: any): any;
+    getBoundingBox(target?: Box3): Box3;
     /**
      * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
      *
@@ -40,22 +25,18 @@ export declare class ConeFrustum {
      *
      * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
      */
-    computeOptimisedBoundingCube(origin: any): any;
+    computeOptimisedBoundingCube(origin: Vector3): Float32Array;
     /**
-     * @param {!Vector3} center0
-     * @param {!number} radius0
-     * @param {!Vector3} center1
-     * @param {!number} radius1
-     * @param {?Vector3} origin		The origin for the current coordinate space. Can be null.
-     * @param {?number} minScale
+     * @param center0
+     * @param radius0
+     * @param center1
+     * @param radius1
+     * @param origin		The origin for the current coordinate space. Can be null.
+     * @param minScale
      *
      * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
      */
-    static computeOptimisedDownscalingBoundingCube(center0: any, radius0: any, center1: any, radius1: any, origin: any, minScale: any): any;
-    /**
-     * @param frustum   {!ConeFrustum}
-     * @returns {boolean}
-     */
-    equals(frustum: any): any;
+    static computeOptimisedDownscalingBoundingCube(center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin: Vector3, minScale: number): Float32Array;
+    equals(frustum: ConeFrustum): boolean;
 }
 //# sourceMappingURL=ConeFrustum.d.ts.map

@@ -81,13 +81,11 @@ const baseCubePositions = new BoxBufferGeometry(2, 2, 2).toNonIndexed().attribut
  * @author Max Godefroy <max@godefroy.net>
  */
 class ConeFrustum {
-    /**
-     * @param base      {?Vector3}
-     * @param axis      {?Vector3}
-     * @param height    {?number}
-     * @param radius0   {?number}
-     * @param radius1   {?number}
-     */
+    base;
+    axis;
+    height;
+    radius0;
+    radius1;
     constructor(base, axis, height, radius0, radius1) {
         this.base = base || new Vector3();
         this.axis = axis || new Vector3(0, 1, 0);
@@ -96,13 +94,6 @@ class ConeFrustum {
         this.radius0 = radius0 || 0;
         this.radius1 = radius1 || 0;
     }
-    /**
-     * @param center0   {!Vector3}
-     * @param radius0   {number}
-     * @param center1   {!Vector3}
-     * @param radius1   {number}
-     * @returns {ConeFrustum}
-     */
     static fromCapsule(center0, radius0, center1, radius1) {
         if (radius0 > radius1)
             return this.fromCapsule(center1, radius1, center0, radius0);
@@ -135,9 +126,6 @@ class ConeFrustum {
         const t = p2Dx - p2Dy * (this.radius0 - this.radius1) / this.height;
         target.copy(this.axis).multiplyScalar(t).add(this.base);
     }
-    /**
-     * @param frustum   {!ConeFrustum}
-     */
     copy(frustum) {
         this.base = frustum.base.clone();
         this.axis = frustum.axis.clone();
@@ -151,10 +139,6 @@ class ConeFrustum {
     empty() {
         return this.height === 0 || (this.radius0 === 0 && this.radius1 === 0);
     }
-    /**
-     * @param target    {?Box3}
-     * @returns {!Box3}
-     */
     getBoundingBox(target) {
         const c = this.base.clone();
         const d = new Vector3();
@@ -195,12 +179,12 @@ class ConeFrustum {
         return attribute.array;
     }
     /**
-     * @param {!Vector3} center0
-     * @param {!number} radius0
-     * @param {!Vector3} center1
-     * @param {!number} radius1
-     * @param {?Vector3} origin		The origin for the current coordinate space. Can be null.
-     * @param {?number} minScale
+     * @param center0
+     * @param radius0
+     * @param center1
+     * @param radius1
+     * @param origin		The origin for the current coordinate space. Can be null.
+     * @param minScale
      *
      * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
      */
@@ -306,10 +290,6 @@ class ConeFrustum {
         }
         return attribute.array;
     }
-    /**
-     * @param frustum   {!ConeFrustum}
-     * @returns {boolean}
-     */
     equals(frustum) {
         return this.base.equals(frustum.base) &&
             this.axis.equals(frustum.axis) &&
@@ -467,20 +447,26 @@ class SpherifiedCubeBufferGeometry extends BufferGeometry {
 }
 
 class Cone {
+    v;
+    axis;
+    theta;
+    inf;
+    sup;
+    cosTheta;
     /**
-     *  @param {Vector3} v The cone origin
-     *  @param {Vector3} axis The axis, normalized.
-     *  @param {number} theta The cone angle
-     *  @param {number} sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
-     *  @param {number} inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
+     *  @param v The cone origin
+     *  @param axis The axis, normalized.
+     *  @param theta The cone angle
+     *  @param sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
+     *  @param inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
      */
     constructor(v, axis, theta, inf, sup) {
         this.v = v || new Vector3();
         this.axis = axis || new Vector3(1, 0, 0);
-        this.theta = theta;
+        this.theta = theta || 0;
         this.inf = inf || 0;
         this.sup = sup || +Infinity;
-        this.cosTheta = Math.cos(theta);
+        this.cosTheta = Math.cos(theta || 0);
     }
     set(v, axis, theta, inf, sup) {
         this.v.copy(v);
@@ -518,13 +504,13 @@ class Cone {
  * Compute intersections of a ray with a cone.
  * For more on this algorithm : http://www.geometrictools.com/Documentation/IntersectionLineCone.pdf
  *
- * @param {!Cone} cone is a truncated cone and must must define :
+ * @param cone is a truncated cone and must must define :
  *      v the singular point
  *      axis the cone direction
  *      inf >= 0 all points P such that Dot(axis,P-v) < inf are not considered in the cone
  *      sup > 0 all points P such that Dot(axis,P-v) > sup are not considered in the cone
  *
- * @param {!Vector3} target Where to save the resulting hit point, if any.
+ * @param target Where to save the resulting hit point, if any.
  * @return {Vector3} The first hit point if any, null otherwise.
  *
  */

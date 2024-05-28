@@ -9,16 +9,12 @@
      *                            depth packing does only provide methods to store in [0,1[ To recover the view coordinate, you need to do
      *                            x = 4*unpackRGBAToDepth(rgba) - 1;
      */
-export class MeshViewPositionMaterial {
+export class MeshViewPositionMaterial extends ShaderMaterial {
     constructor(parameters: any);
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
-    wireframe: boolean;
-    wireframeLinewidth: number;
-    fog: boolean;
-    lights: boolean;
     skinning: boolean;
-    morphTargets: boolean;
 }
+import { ShaderMaterial } from 'three';
 //# sourceMappingURL=MeshViewPositionMaterial.d.ts.map

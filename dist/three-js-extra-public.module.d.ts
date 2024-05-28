@@ -1,40 +1,25 @@
-import { IcosahedronBufferGeometry, BufferGeometry } from 'three';
+import * as three from 'three';
+import { Vector3, Box3, IcosahedronBufferGeometry, BufferGeometry, ShaderMaterial, Vector2, MeshDepthMaterial } from 'three';
 
 /**
  * @author Max Godefroy <max@godefroy.net>
  */
 declare class ConeFrustum {
-    /**
-     * @param base      {?Vector3}
-     * @param axis      {?Vector3}
-     * @param height    {?number}
-     * @param radius0   {?number}
-     * @param radius1   {?number}
-     */
-    constructor(base: any, axis: any, height: any, radius0: any, radius1: any);
-    /**
-     * @param center0   {!Vector3}
-     * @param radius0   {number}
-     * @param center1   {!Vector3}
-     * @param radius1   {number}
-     * @returns {ConeFrustum}
-     */
-    static fromCapsule(center0: any, radius0: any, center1: any, radius1: any): any;
+    base: Vector3;
+    axis: Vector3;
+    height: number;
+    radius0: number;
+    radius1: number;
+    constructor(base?: Vector3, axis?: Vector3, height?: number, radius0?: number, radius1?: number);
+    static fromCapsule(center0: Vector3, radius0: number, center1: Vector3, radius1: number): ConeFrustum;
     /**
      *  Project the given point on the axis, in a direction orthogonal to the cone frustum surface.
      **/
-    orthogonalProject(p: any, target: any): void;
-    /**
-     * @param frustum   {!ConeFrustum}
-     */
-    copy(frustum: any): void;
+    orthogonalProject(p: Vector3, target: Vector3): void;
+    copy(frustum: ConeFrustum): void;
     clone(): void;
     empty(): boolean;
-    /**
-     * @param target    {?Box3}
-     * @returns {!Box3}
-     */
-    getBoundingBox(target: any): any;
+    getBoundingBox(target?: Box3): Box3;
     /**
      * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
      *
@@ -42,24 +27,27 @@ declare class ConeFrustum {
      *
      * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
      */
-    computeOptimisedBoundingCube(origin: any): any;
+    computeOptimisedBoundingCube(origin: Vector3): Float32Array;
     /**
-     * @param {!Vector3} center0
-     * @param {!number} radius0
-     * @param {!Vector3} center1
-     * @param {!number} radius1
-     * @param {?Vector3} origin		The origin for the current coordinate space. Can be null.
-     * @param {?number} minScale
+     * @param center0
+     * @param radius0
+     * @param center1
+     * @param radius1
+     * @param origin		The origin for the current coordinate space. Can be null.
+     * @param minScale
      *
      * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
      */
-    static computeOptimisedDownscalingBoundingCube(center0: any, radius0: any, center1: any, radius1: any, origin: any, minScale: any): any;
-    /**
-     * @param frustum   {!ConeFrustum}
-     * @returns {boolean}
-     */
-    equals(frustum: any): any;
+    static computeOptimisedDownscalingBoundingCube(center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin: Vector3, minScale: number): Float32Array;
+    equals(frustum: ConeFrustum): boolean;
 }
+
+declare module "three" {
+    interface Ray {
+        intersectsConeFrustum(frustum: ConeFrustum, target: Vector3 | null): Vector3 | null;
+    }
+}
+//# sourceMappingURL=RayIntersect.d.ts.map
 
 /**
  * @author baptistewagner & lucassort
@@ -80,20 +68,31 @@ declare class SpherifiedCubeBufferGeometry extends BufferGeometry {
 }
 
 declare class Cone {
+    v: Vector3;
+    axis: Vector3;
+    theta: number;
+    inf: number;
+    sup: number;
+    cosTheta: number;
     /**
-     *  @param {Vector3} v The cone origin
-     *  @param {Vector3} axis The axis, normalized.
-     *  @param {number} theta The cone angle
-     *  @param {number} sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
-     *  @param {number} inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
+     *  @param v The cone origin
+     *  @param axis The axis, normalized.
+     *  @param theta The cone angle
+     *  @param sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
+     *  @param inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
      */
-    constructor(v: any, axis: any, theta: any, inf: any, sup: any);
-    set(v: any, axis: any, theta: any, inf: any, sup: any): this;
+    constructor(v?: Vector3, axis?: Vector3, theta?: number, inf?: number, sup?: number);
+    set(v: Vector3, axis: Vector3, theta: number, inf: number, sup: number): this;
     clone(): Cone;
-    copy(cone: any): this;
+    copy(cone: Cone): Cone;
     empty(): boolean;
-    getBoundingBox(target: any): void;
-    equals(cone: any): any;
+    getBoundingBox(target: Vector3): void;
+    equals(cone: Cone): boolean;
+}
+declare module "three" {
+    interface Ray {
+        intersectCone(cone: Cone, target: Vector3): Vector3 | null;
+    }
 }
 
 /**
@@ -104,23 +103,17 @@ declare class Cone {
      *
      *
      */
-declare class MeshNormalDepthMaterial {
+declare class MeshNormalDepthMaterial extends ShaderMaterial {
     constructor(parameters: any);
     bumpMap: any;
     bumpScale: number;
     normalMap: any;
-    normalMapType: any;
-    normalScale: any;
+    normalMapType: three.NormalMapTypes;
+    normalScale: Vector2;
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
-    wireframe: boolean;
-    wireframeLinewidth: number;
-    fog: boolean;
-    lights: boolean;
     skinning: boolean;
-    morphTargets: boolean;
-    morphNormals: boolean;
     isMeshNormalMaterial: boolean;
     isMeshNormalDepthMaterial: boolean;
 }
@@ -130,7 +123,7 @@ declare class MeshNormalDepthMaterial {
  * Material packing depth as rgba values.
  * It is basically just MeshDepthMaterial with depthPacking at THREE.RGBADepthPacking
  */
-declare class MeshRGBADepthMaterial {
+declare class MeshRGBADepthMaterial extends MeshDepthMaterial {
     constructor(parameters: any);
 }
 
@@ -145,17 +138,12 @@ declare class MeshRGBADepthMaterial {
      *                            depth packing does only provide methods to store in [0,1[ To recover the view coordinate, you need to do
      *                            x = 4*unpackRGBAToDepth(rgba) - 1;
      */
-declare class MeshViewPositionMaterial {
+declare class MeshViewPositionMaterial extends ShaderMaterial {
     constructor(parameters: any);
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
-    wireframe: boolean;
-    wireframeLinewidth: number;
-    fog: boolean;
-    lights: boolean;
     skinning: boolean;
-    morphTargets: boolean;
 }
 
 /**
@@ -168,23 +156,17 @@ declare class MeshViewPositionMaterial {
      * If you don't want to do it by yourself, just call MeshWorldNormalMaterial.updateMeshOnBeforeRender on any mesh using this material.
      * see MeshWorldNormalMaterial.updateMeshOnBeforeRender for more details.
      */
-declare class MeshWorldNormalMaterial {
+declare class MeshWorldNormalMaterial extends ShaderMaterial {
     constructor(parameters: any);
     bumpMap: any;
     bumpScale: number;
     normalMap: any;
-    normalMapType: any;
-    normalScale: any;
+    normalMapType: three.NormalMapTypes;
+    normalScale: Vector2;
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
-    wireframe: boolean;
-    wireframeLinewidth: number;
-    fog: boolean;
-    lights: boolean;
     skinning: boolean;
-    morphTargets: boolean;
-    morphNormals: boolean;
     isMeshNormalMaterial: boolean;
     isMeshWorldNormalMaterial: boolean;
     /**
@@ -199,17 +181,12 @@ declare class MeshWorldNormalMaterial {
  * @author Maxime Quiblier / http://github.com/maximeq
  *
  */
-declare class MeshWorldPositionMaterial {
+declare class MeshWorldPositionMaterial extends ShaderMaterial {
     constructor(parameters: any);
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
-    wireframe: boolean;
-    wireframeLinewidth: number;
-    fog: boolean;
-    lights: boolean;
     skinning: boolean;
-    morphTargets: boolean;
     isMeshDepthMaterial: boolean;
     isMeshWorldPositionMaterial: boolean;
 }

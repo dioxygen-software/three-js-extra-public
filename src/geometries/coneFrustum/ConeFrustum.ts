@@ -11,6 +11,12 @@ const baseCubePositions = new BoxBufferGeometry( 2, 2, 2 ).toNonIndexed().attrib
 
 export class ConeFrustum {
 
+	base: Vector3;
+	axis: Vector3;
+	height: number;
+	radius0: number;
+	radius1: number;
+	
 	/**
      * @param base      {?Vector3}
      * @param axis      {?Vector3}
@@ -18,7 +24,7 @@ export class ConeFrustum {
      * @param radius0   {?number}
      * @param radius1   {?number}
      */
-	constructor( base, axis, height, radius0, radius1 ) {
+	constructor( base?: Vector3, axis?: Vector3, height?: number, radius0?: number, radius1?: number ) {
 
 		this.base = base || new Vector3();
 
@@ -31,7 +37,6 @@ export class ConeFrustum {
 
 	}
 
-
 	/**
      * @param center0   {!Vector3}
      * @param radius0   {number}
@@ -39,7 +44,7 @@ export class ConeFrustum {
      * @param radius1   {number}
      * @returns {ConeFrustum}
      */
-	static fromCapsule( center0, radius0, center1, radius1 ) {
+	static fromCapsule( center0: Vector3, radius0: number, center1: Vector3, radius1: number ): ConeFrustum {
 
 		if ( radius0 > radius1 )
 			return this.fromCapsule( center1, radius1, center0, radius0 );
@@ -50,8 +55,8 @@ export class ConeFrustum {
 			throw "Capsule height must not be zero";
 
 		const sinTheta = ( radius1 - radius0 ) / axis.length();
-		const height = axis.length() + sinTheta * ( radius0 - radius1 );
-		const base = new Vector3().copy( center0 ).addScaledVector( axis.normalize(), - sinTheta * radius0 );
+		const height: number = axis.length() + sinTheta * ( radius0 - radius1 );
+		const base: Vector3 = new Vector3().copy( center0 ).addScaledVector( axis.normalize(), - sinTheta * radius0 );
 		const cosTheta = Math.cos( Math.asin( sinTheta ) );
 
 		return new ConeFrustum( base, axis, height, radius0 * cosTheta, radius1 * cosTheta );
@@ -61,7 +66,7 @@ export class ConeFrustum {
 	/**
      *  Project the given point on the axis, in a direction orthogonal to the cone frustum surface.
      **/
-	orthogonalProject( p, target ) {
+	orthogonalProject( p: Vector3, target: Vector3 ): void {
 
 		// We will work in 2D, in the orthogonal basis x = this.axis and y = orthogonal vector to this.axis in the plane (this.basis, p, this.basis + this.axis),
 		// and such that p has positive y coordinate in this basis.
@@ -83,10 +88,8 @@ export class ConeFrustum {
 
 	}
 
-	/**
-     * @param frustum   {!ConeFrustum}
-     */
-	copy( frustum ) {
+
+	copy( frustum: ConeFrustum ) {
 
 		this.base = frustum.base.clone();
 		this.axis = frustum.axis.clone();
@@ -97,14 +100,14 @@ export class ConeFrustum {
 	}
 
 
-	clone() {
+	clone(): void {
 
 		return new ConeFrustum().copy( this );
 
 	}
 
 
-	empty() {
+	empty(): boolean {
 
 		return this.height === 0 || ( this.radius0 === 0 && this.radius1 === 0 );
 
@@ -115,7 +118,7 @@ export class ConeFrustum {
      * @param target    {?Box3}
 	 * @returns {!Box3}
      */
-	getBoundingBox( target ) {
+	getBoundingBox( target?: Box3 ): Box3 {
 
 		const c = this.base.clone();
 		const d = new Vector3();
@@ -152,7 +155,7 @@ export class ConeFrustum {
 	 *
      * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
      */
-	computeOptimisedBoundingCube( origin ) {
+	computeOptimisedBoundingCube( origin: Vector3 ): Float32Array {
 
 	    const attribute = baseCubePositions.clone();
 
@@ -189,7 +192,7 @@ export class ConeFrustum {
 	 *
 	 * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
 	 */
-	static computeOptimisedDownscalingBoundingCube( center0, radius0, center1, radius1, origin, minScale ) {
+	static computeOptimisedDownscalingBoundingCube( center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin?: Vector3, minScale?: number ) {
 
 		if ( radius0 > radius1 )
 			return this.computeOptimisedDownscalingBoundingCube( center1, radius1, center0, radius0, origin, minScale );
@@ -257,7 +260,7 @@ export class ConeFrustum {
 
 		const sinTheta = ( radius1 - radius0 ) / tmpVec1.length();
 
-		if ( Math.abs( sinTheta ) >= 1 / minScale * 0.9999 ) {
+		if ( minScale && Math.abs( sinTheta ) >= 1 / minScale * 0.9999 ) {
 
 			tmpVec1.addVectors( center0, center1 ).multiplyScalar( 0.5 );
 			for ( let i = 0; i < facePositionsArray.length; i += 3 ) {
@@ -270,12 +273,12 @@ export class ConeFrustum {
 
 			return toPositions();
 
-		} else if ( Math.abs( sinTheta ) > 1 )
+		} else if ( minScale && Math.abs( sinTheta ) > 1 )
 			return this.computeOptimisedDownscalingBoundingCube( center0, minScale * radius0, center1, minScale * radius1, origin, 1 );
 
 		const cosTheta = Math.cos( Math.asin( sinTheta ) );
-		const height = tmpVec1.length() + sinTheta * ( radius0 - ( minScale * minScale ) * radius1 );
-		const unscaledHeight = tmpVec1.length() + sinTheta * ( radius0 - radius1 );
+		const height: number = minScale ? tmpVec1.length() + sinTheta * ( radius0 - ( minScale * minScale ) * radius1 ) : 0;
+		const unscaledHeight: number = tmpVec1.length() + sinTheta * ( radius0 - radius1 );
 		tmpVec2.copy( center0 ).addScaledVector( tmpVec1.normalize(), - sinTheta * radius0 );
 
 		const r0 = radius0 * cosTheta;
@@ -289,7 +292,8 @@ export class ConeFrustum {
 
 		}
 
-		s = Math.cos( Math.asin( minScale * sinTheta ) ) * radius1 * minScale / r1;
+		if ( minScale )
+			s = Math.cos( Math.asin( minScale * sinTheta ) ) * radius1 * minScale / r1;
 		for ( let i = 24; i < 36; i += 3 ) {
 
 			facePositionsArray[ i ] *= s;
@@ -339,7 +343,7 @@ export class ConeFrustum {
      * @param frustum   {!ConeFrustum}
      * @returns {boolean}
      */
-	equals( frustum ) {
+	equals( frustum: ConeFrustum ): boolean {
 
 		return this.base.equals( frustum.base ) &&
             this.axis.equals( frustum.axis ) &&

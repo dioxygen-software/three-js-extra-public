@@ -1,5 +1,11 @@
 import {Ray, Vector3} from "three";
+import { ConeFrustum } from "./ConeFrustum";
 
+declare module "three"{
+    interface Ray {
+        intersectsConeFrustum(frustum: ConeFrustum, target: Vector3 | null): Vector3 | null;
+    }
+}
 
 Ray.prototype.intersectsConeFrustum = function () {
 
@@ -7,7 +13,7 @@ Ray.prototype.intersectsConeFrustum = function () {
     const target2 = new Vector3();
     const u = new Vector3();
 
-    return function ( frustum, target ) {
+    return function ( frustum: ConeFrustum, target: Vector3 | null) {
 
         if ( target == null )
             target = target2;

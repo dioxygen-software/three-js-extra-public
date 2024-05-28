@@ -2,26 +2,32 @@ import { Ray, Vector3 } from "three"
 
 export class Cone {
 
+    v: Vector3;
+    axis: Vector3;
+    theta: number;
+    inf: number;
+    sup: number;
+    cosTheta: number;
 
     /**
-     *  @param {Vector3} v The cone origin
-     *  @param {Vector3} axis The axis, normalized.
-     *  @param {number} theta The cone angle
-     *  @param {number} sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
-     *  @param {number} inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
+     *  @param v The cone origin
+     *  @param axis The axis, normalized.
+     *  @param theta The cone angle
+     *  @param sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
+     *  @param inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
      */
-    constructor(v, axis, theta, inf, sup) {
+    constructor(v?: Vector3, axis?: Vector3, theta?: number, inf?: number, sup?: number) {
 
         this.v = v || new Vector3();
         this.axis = axis || new Vector3(1, 0, 0);
-        this.theta = theta;
+        this.theta = theta || 0;
         this.inf = inf || 0;
         this.sup = sup || +Infinity;
 
-        this.cosTheta = Math.cos(theta);
+        this.cosTheta = Math.cos(theta || 0);
     }
 
-    set(v, axis, theta, inf, sup) {
+    set(v: Vector3, axis: Vector3, theta: number, inf: number, sup: number) {
 
         this.v.copy(v);
         this.axis.copy(axis);
@@ -39,7 +45,7 @@ export class Cone {
         return (new Cone()).copy(this);
     }
 
-    copy(cone) {
+    copy(cone: Cone): Cone {
 
         this.v.copy(cone.v);
         this.axis.copy(cone.axis);
@@ -59,14 +65,20 @@ export class Cone {
 
     }
 
-    getBoundingBox(target) {
+    getBoundingBox(target: Vector3) {
         throw "not implemented yet, todo";
     }
 
-    equals(cone) {
+    equals(cone: Cone): boolean {
 
         return cone.v.equals(this.v) && cone.axis.equals(this.axis) && cone.theta === this.theta && cone.inf === this.inf && cone.sup === this.sup;
 
+    }
+}
+
+declare module "three"{
+    interface Ray {
+        intersectCone(cone: Cone, target: Vector3): Vector3 | null;
     }
 }
 
@@ -75,13 +87,13 @@ export class Cone {
  * Compute intersections of a ray with a cone.
  * For more on this algorithm : http://www.geometrictools.com/Documentation/IntersectionLineCone.pdf
  *
- * @param {!Cone} cone is a truncated cone and must must define :
+ * @param cone is a truncated cone and must must define :
  *      v the singular point
  *      axis the cone direction
  *      inf >= 0 all points P such that Dot(axis,P-v) < inf are not considered in the cone
  *      sup > 0 all points P such that Dot(axis,P-v) > sup are not considered in the cone
  *
- * @param {!Vector3} target Where to save the resulting hit point, if any.
+ * @param target Where to save the resulting hit point, if any.
  * @return {Vector3} The first hit point if any, null otherwise.
  *
  */
@@ -90,7 +102,7 @@ Ray.prototype.intersectCone = function () {
     var E = new Vector3();
     var target2 = new Vector3();
 
-    return function (cone, target) {
+    return function (cone: Cone, target: Vector3): Vector3 | null {
         // Set up the quadratic Q(t) = c2*t^2 + 2*c1*t + c0 that corresponds to
         // the cone.  Let the vertex be V, the unit-length direction vector be A,
         // and the angle measured from the cone axis to the cone wall be Theta,

@@ -13,7 +13,7 @@ Ray.prototype.intersectsConeFrustum = function () {
     const target2 = new Vector3();
     const u = new Vector3();
 
-    return function ( frustum: ConeFrustum, target: Vector3 | null) {
+    return function ( this: Ray, frustum: ConeFrustum, target: Vector3 | null) {
 
         if ( target == null )
             target = target2;

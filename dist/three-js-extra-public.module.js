@@ -74,7 +74,7 @@ Ray.prototype.intersectsConeFrustum = function () {
     };
 }();
 
-const tmpVec = new Vector3(); new Vector3(); const tmpVec2 = new Vector3(); new Vector3();
+const tmpVec = new Vector3(), tmpVec2 = new Vector3();
 const tmpMat = new Matrix4();
 const baseCubePositions = new BoxBufferGeometry(2, 2, 2).toNonIndexed().attributes.position;
 /**
@@ -157,9 +157,9 @@ class ConeFrustum {
     /**
      * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
      *
-     * @param {!Vector3} origin		The origin for the current coordinate space
+     * @param origin		The origin for the current coordinate space
      *
-     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
+     * @returns The cube position vertex coordinates as a flat array
      */
     computeOptimisedBoundingCube(origin) {
         const attribute = baseCubePositions.clone();
@@ -179,16 +179,11 @@ class ConeFrustum {
         return attribute.array;
     }
     /**
-     * @param center0
-     * @param radius0
-     * @param center1
-     * @param radius1
      * @param origin		The origin for the current coordinate space. Can be null.
-     * @param minScale
      *
      * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
      */
-    static computeOptimisedDownscalingBoundingCube(center0, radius0, center1, radius1, origin, minScale) {
+    static computeOptimisedDownscalingBoundingCube(center0, radius0, center1, radius1, origin, minScale = 0.5) {
         if (radius0 > radius1)
             return this.computeOptimisedDownscalingBoundingCube(center1, radius1, center0, radius0, origin, minScale);
         const facePositionsArray = new Float32Array([
@@ -283,7 +278,7 @@ class ConeFrustum {
             tmpMat.makeRotationZ(Math.PI);
             attribute.applyMatrix4(tmpMat);
         }
-        if (origin != null) {
+        if (origin) {
             tmpVec.copy(tmpVec2).addScaledVector(tmpVec1, height / 2).sub(origin);
             tmpMat.makeTranslation(tmpVec.x, tmpVec.y, tmpVec.z);
             attribute.applyMatrix4(tmpMat);
@@ -313,6 +308,7 @@ class IcosahedronSphereBufferGeometry extends IcosahedronBufferGeometry {
  * @author baptistewagner & lucassort
  */
 class RoundedCubeBufferGeometry extends BufferGeometry {
+    parameters;
     constructor(radius, widthHeightSegments) {
         super();
         this.type = "RoundedCubeBufferGeometry";
@@ -342,6 +338,10 @@ class RoundedCubeBufferGeometry extends BufferGeometry {
         let uvArray = cubeBufferGeometry.getAttribute("uv").array;
         for (let i = 0; i < uvArray.length; ++i) {
             uvs.push(uvArray[i]);
+        }
+        // cubeBufferGeometry.index check for TypesScript, it is not supposed to be null 
+        if (cubeBufferGeometry.index === null) {
+            throw "cubeBufferGeometry has null index attribute.";
         }
         let indexArray = cubeBufferGeometry.index.array;
         for (let i = 0; i < indexArray.length; ++i) {
@@ -373,6 +373,7 @@ class RoundedCubeBufferGeometry extends BufferGeometry {
 }
 
 class SpherifiedCubeBufferGeometry extends BufferGeometry {
+    parameters;
     constructor(radius, widthHeightSegments) {
         super();
         this.type = "SpherifiedCubeBufferGeometry";
@@ -382,6 +383,7 @@ class SpherifiedCubeBufferGeometry extends BufferGeometry {
             radius: radius,
             widthHeightSegments: widthHeightSegments,
         };
+        // generate cube
         var vertex = new Vector3();
         var vertex2 = new Vector3();
         var normal = new Vector3();
@@ -403,6 +405,10 @@ class SpherifiedCubeBufferGeometry extends BufferGeometry {
         let uvArray = cubeBufferGeometry.getAttribute("uv").array;
         for (let i = 0; i < uvArray.length; ++i) {
             uvs.push(uvArray[i]);
+        }
+        // cubeBufferGeometry.index check for TypesScript, it is not supposed to be null 
+        if (cubeBufferGeometry.index === null) {
+            throw "cubeBufferGeometry has null index attribute.";
         }
         let indexArray = cubeBufferGeometry.index.array;
         for (let i = 0; i < indexArray.length; ++i) {

@@ -5,7 +5,13 @@ import { BufferGeometry, Vector3, BoxBufferGeometry, Float32BufferAttribute } fr
  */
 
 export class RoundedCubeBufferGeometry extends BufferGeometry {
-    constructor(radius, widthHeightSegments) {
+
+    parameters: {
+        radius: number;
+        widthHeightSegments: number;
+    }
+
+    constructor(radius?: number, widthHeightSegments?: number) {
         super();
 
         this.type = "RoundedCubeBufferGeometry";
@@ -18,8 +24,6 @@ export class RoundedCubeBufferGeometry extends BufferGeometry {
             radius: radius,
             widthHeightSegments: widthHeightSegments,
         };
-
-        var scope = this;
 
         var vertex = new Vector3();
         var normal = new Vector3();
@@ -57,11 +61,16 @@ export class RoundedCubeBufferGeometry extends BufferGeometry {
             uvs.push(uvArray[i]);
         }
 
+        // cubeBufferGeometry.index check for TypesScript, it is not supposed to be null 
+        if (cubeBufferGeometry.index === null) {
+            throw "cubeBufferGeometry has null index attribute."
+        }
+
         let indexArray = cubeBufferGeometry.index.array;
         for (let i = 0; i < indexArray.length; ++i) {
             indices.push(indexArray[i]);
-        }
 
+        }
         // then normalizing the cube to have a sphere
 
         var vIndex;

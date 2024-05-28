@@ -21,22 +21,17 @@ export declare class ConeFrustum {
     /**
      * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
      *
-     * @param {!Vector3} origin		The origin for the current coordinate space
+     * @param origin		The origin for the current coordinate space
      *
-     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
+     * @returns The cube position vertex coordinates as a flat array
      */
-    computeOptimisedBoundingCube(origin: Vector3): Float32Array;
+    computeOptimisedBoundingCube(origin: Vector3): ArrayLike<number>;
     /**
-     * @param center0
-     * @param radius0
-     * @param center1
-     * @param radius1
      * @param origin		The origin for the current coordinate space. Can be null.
-     * @param minScale
      *
      * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
      */
-    static computeOptimisedDownscalingBoundingCube(center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin: Vector3, minScale: number): Float32Array;
+    static computeOptimisedDownscalingBoundingCube(center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin?: Vector3 | null, minScale?: number): Float32Array;
     equals(frustum: ConeFrustum): boolean;
 }
 //# sourceMappingURL=ConeFrustum.d.ts.map

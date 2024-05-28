@@ -1,6 +1,6 @@
 import {Box3, Vector3, Matrix4, BoxBufferGeometry, BufferAttribute} from "three";
 
-const tmpVec = new Vector3(), tmpVec1 = new Vector3(), tmpVec2 = new Vector3(), tmpVec3 = new Vector3();
+const tmpVec = new Vector3(), tmpVec2 = new Vector3();
 const tmpMat = new Matrix4();
 const baseCubePositions = new BoxBufferGeometry( 2, 2, 2 ).toNonIndexed().attributes.position;
 
@@ -135,11 +135,11 @@ export class ConeFrustum {
     /**
      * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
      *
-     * @param {!Vector3} origin		The origin for the current coordinate space
+     * @param origin		The origin for the current coordinate space
      *
-     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
+     * @returns The cube position vertex coordinates as a flat array
      */
-    computeOptimisedBoundingCube( origin: Vector3 ): Float32Array {
+    computeOptimisedBoundingCube( origin: Vector3 ): ArrayLike<number> {
 
         const attribute = baseCubePositions.clone();
 
@@ -161,22 +161,16 @@ export class ConeFrustum {
         tmpMat.makeTranslation( tmpVec.x, tmpVec.y, tmpVec.z );
         attribute.applyMatrix4( tmpMat );
 
-        return attribute.array as Float32Array;
-
+        return attribute.array;
     }
 
 
     /**
-     * @param center0
-     * @param radius0
-     * @param center1
-     * @param radius1
      * @param origin		The origin for the current coordinate space. Can be null.
-     * @param minScale
      *
      * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
      */
-    static computeOptimisedDownscalingBoundingCube( center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin: Vector3, minScale: number ): Float32Array {
+    static computeOptimisedDownscalingBoundingCube( center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin?: Vector3 | null, minScale: number = 0.5 ): Float32Array {
 
         if ( radius0 > radius1 )
             return this.computeOptimisedDownscalingBoundingCube( center1, radius1, center0, radius0, origin, minScale );
@@ -309,7 +303,7 @@ export class ConeFrustum {
 
         }
 
-        if ( origin != null ) {
+        if ( origin ) {
 
             tmpVec.copy( tmpVec2 ).addScaledVector( tmpVec1, height / 2 ).sub( origin );
             tmpMat.makeTranslation( tmpVec.x, tmpVec.y, tmpVec.z );

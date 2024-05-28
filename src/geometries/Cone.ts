@@ -102,7 +102,7 @@ Ray.prototype.intersectCone = function () {
     var E = new Vector3();
     var target2 = new Vector3();
 
-    return function (cone: Cone, target: Vector3): Vector3 | null {
+    return function (this : Ray, cone: Cone, target: Vector3): Vector3 | null {
         // Set up the quadratic Q(t) = c2*t^2 + 2*c1*t + c0 that corresponds to
         // the cone.  Let the vertex be V, the unit-length direction vector be A,
         // and the angle measured from the cone axis to the cone wall be Theta,

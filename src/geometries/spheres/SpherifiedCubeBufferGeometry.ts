@@ -1,7 +1,13 @@
 import { BufferGeometry, Vector3, BoxBufferGeometry, Float32BufferAttribute } from "three"
 
 export class SpherifiedCubeBufferGeometry extends BufferGeometry {
-    constructor(radius, widthHeightSegments) {
+
+    parameters: {
+        radius: number;
+        widthHeightSegments: number;
+    }
+
+    constructor(radius: number, widthHeightSegments: number) {
         super();
 
         this.type = "SpherifiedCubeBufferGeometry";
@@ -15,20 +21,11 @@ export class SpherifiedCubeBufferGeometry extends BufferGeometry {
             widthHeightSegments: widthHeightSegments,
         };
 
-        var scope = this;
-
         // generate cube
-        var ix, iy;
-        var depth = 1;
-        var height = 1;
-        var width = 1;
 
         var vertex = new Vector3();
         var vertex2 = new Vector3();
         var normal = new Vector3();
-
-        var numberOfVertices = 0;
-        var groupStart = 0;
 
         // buffers
 
@@ -61,6 +58,11 @@ export class SpherifiedCubeBufferGeometry extends BufferGeometry {
         let uvArray = cubeBufferGeometry.getAttribute("uv").array;
         for (let i = 0; i < uvArray.length; ++i) {
             uvs.push(uvArray[i]);
+        }
+
+        // cubeBufferGeometry.index check for TypesScript, it is not supposed to be null 
+        if (cubeBufferGeometry.index === null) {
+            throw "cubeBufferGeometry has null index attribute."
         }
 
         let indexArray = cubeBufferGeometry.index.array;

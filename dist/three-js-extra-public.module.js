@@ -1,298 +1,5 @@
-import { Ray, Vector3, Matrix4, BoxBufferGeometry, Box3, BufferAttribute, IcosahedronBufferGeometry, BufferGeometry, Float32BufferAttribute, ShaderMaterial, UniformsUtils, ShaderLib, TangentSpaceNormalMap, Vector2, MeshDepthMaterial, RGBADepthPacking } from 'three';
+import { IcosahedronBufferGeometry, BufferGeometry, Vector3, BoxBufferGeometry, Float32BufferAttribute, ShaderMaterial, UniformsUtils, ShaderLib, TangentSpaceNormalMap, Vector2, MeshDepthMaterial, RGBADepthPacking, Matrix4, BufferAttribute, Box3, Ray } from 'three';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-
-Ray.prototype.intersectsConeFrustum = function () {
-    const D = new Vector3();
-    const target2 = new Vector3();
-    const u = new Vector3();
-    return function (frustum, target) {
-        if (target == null)
-            target = target2;
-        const deltaR = frustum.radius1 - frustum.radius0;
-        const r = 1 + Math.pow(deltaR / frustum.height, 2);
-        const R = frustum.radius0 * deltaR / frustum.height;
-        D.subVectors(this.origin, frustum.base);
-        const DdA = D.dot(frustum.axis);
-        const DdD = D.dot(D);
-        const VdA = this.direction.dot(frustum.axis);
-        const VdD = this.direction.dot(D);
-        const VdV = this.direction.dot(this.direction);
-        const c0 = frustum.radius0 * frustum.radius0 + 2 * R * DdA + r * DdA * DdA - DdD;
-        const c1 = R * VdA + r * DdA * VdA - VdD;
-        const c2 = r * VdA * VdA - VdV;
-        if (c2 !== 0) {
-            const discr = c1 * c1 - c2 * c0;
-            if (discr < 0)
-                return null;
-            else if (discr === 0) {
-                const t = -c1 / c2;
-                u.copy(D);
-                u.addScaledVector(this.direction, t);
-                const d = frustum.axis.dot(u);
-                if (t >= 0 && d >= 0 && d <= frustum.height) {
-                    target2.addVectors(frustum.base, u);
-                    target.copy(target2);
-                    return target2;
-                }
-            }
-            else {
-                let quantity = 0;
-                const root = Math.sqrt(discr);
-                const t0 = (-c1 - root) / c2;
-                u.copy(D);
-                u.addScaledVector(this.direction, t0);
-                let d = frustum.axis.dot(u);
-                if (t0 >= 0 && d >= 0 && d <= frustum.height) {
-                    target2.addVectors(frustum.base, u);
-                    quantity++;
-                }
-                const t1 = (-c1 + root) / c2;
-                u.copy(D);
-                u.addScaledVector(this.direction, t1);
-                d = frustum.axis.dot(u);
-                if (t1 >= 0 && (quantity === 0 || t0 > t1) && d >= 0 && d <= frustum.height) {
-                    target2.addVectors(frustum.base, u);
-                    quantity++;
-                }
-                if (quantity)
-                    target.copy(target2);
-                return quantity ? target2 : null;
-            }
-        }
-        else if (c1 !== 0) {
-            const t = -2 * c0 / c1;
-            u.copy(D);
-            u.addScaledVector(this.direction, t);
-            const d = frustum.axis.dot(u);
-            if (t >= 0 && d >= 0 && d <= frustum.height) {
-                target2.addVectors(frustum.base, u);
-                target.copy(target2);
-                return target;
-            }
-        }
-        return null;
-    };
-}();
-
-const tmpVec = new Vector3(), tmpVec2 = new Vector3();
-const tmpMat = new Matrix4();
-const baseCubePositions = new BoxBufferGeometry(2, 2, 2).toNonIndexed().attributes.position;
-/**
- * @author Max Godefroy <max@godefroy.net>
- */
-class ConeFrustum {
-    base;
-    axis;
-    height;
-    radius0;
-    radius1;
-    constructor(base, axis, height, radius0, radius1) {
-        this.base = base || new Vector3();
-        this.axis = axis || new Vector3(0, 1, 0);
-        this.axis.normalize();
-        this.height = height || 1;
-        this.radius0 = radius0 || 0;
-        this.radius1 = radius1 || 0;
-    }
-    static fromCapsule(center0, radius0, center1, radius1) {
-        if (radius0 > radius1)
-            return this.fromCapsule(center1, radius1, center0, radius0);
-        const axis = new Vector3().subVectors(center1, center0);
-        if (axis.length() === 0)
-            throw "Capsule height must not be zero";
-        const sinTheta = (radius1 - radius0) / axis.length();
-        const height = axis.length() + sinTheta * (radius0 - radius1);
-        const base = new Vector3().copy(center0).addScaledVector(axis.normalize(), -sinTheta * radius0);
-        const cosTheta = Math.cos(Math.asin(sinTheta));
-        return new ConeFrustum(base, axis, height, radius0 * cosTheta, radius1 * cosTheta);
-    }
-    /**
-     *  Project the given point on the axis, in a direction orthogonal to the cone frustum surface.
-     **/
-    orthogonalProject(p, target) {
-        // We will work in 2D, in the orthogonal basis x = this.axis and y = orthogonal vector to this.axis in the plane (this.basis, p, this.basis + this.axis),
-        // and such that p has positive y coordinate in this basis.
-        // The wanted projection is the point at the intersection of:
-        //  - the local X axis (computation in the unit_dir basis)
-        //  and
-        //  - the line defined by P and the vector orthogonal to the weight line
-        const baseToP = tmpVec;
-        baseToP.subVectors(p, this.base);
-        const baseToPlsq = baseToP.lengthSq();
-        const p2Dx = baseToP.dot(this.axis);
-        // pythagore inc.
-        const p2DySq = baseToPlsq - p2Dx * p2Dx;
-        const p2Dy = p2DySq > 0 ? Math.sqrt(p2DySq) : 0; // because of rounded errors tmp can be <0 and this causes the next sqrt to return NaN...
-        const t = p2Dx - p2Dy * (this.radius0 - this.radius1) / this.height;
-        target.copy(this.axis).multiplyScalar(t).add(this.base);
-    }
-    copy(frustum) {
-        this.base = frustum.base.clone();
-        this.axis = frustum.axis.clone();
-        this.height = frustum.height;
-        this.radius0 = frustum.radius0;
-        this.radius1 = frustum.radius1;
-    }
-    clone() {
-        return new ConeFrustum().copy(this);
-    }
-    empty() {
-        return this.height === 0 || (this.radius0 === 0 && this.radius1 === 0);
-    }
-    getBoundingBox(target) {
-        const c = this.base.clone();
-        const d = new Vector3();
-        d.set(Math.sqrt(1.0 - this.axis.x * this.axis.x), Math.sqrt(1.0 - this.axis.y * this.axis.y), Math.sqrt(1.0 - this.axis.z * this.axis.z));
-        d.multiplyScalar(this.radius0);
-        const box1 = new Box3(new Vector3().subVectors(c, d), new Vector3().addVectors(c, d));
-        d.divideScalar(this.radius0);
-        d.multiplyScalar(this.radius1);
-        c.addScaledVector(this.axis, this.height);
-        const box2 = new Box3(new Vector3().subVectors(c, d), new Vector3().addVectors(c, d));
-        box1.union(box2);
-        if (target != null)
-            target.copy(box1);
-        return box1;
-    }
-    /**
-     * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
-     *
-     * @param origin		The origin for the current coordinate space
-     *
-     * @returns The cube position vertex coordinates as a flat array
-     */
-    computeOptimisedBoundingCube(origin) {
-        const attribute = baseCubePositions.clone();
-        const r = Math.max(this.radius0, this.radius1);
-        tmpMat.makeScale(r, this.height / 2, r);
-        attribute.applyMatrix4(tmpMat);
-        tmpVec.set(0, 1, 0);
-        const angle = tmpVec.angleTo(this.axis);
-        tmpVec.cross(this.axis).normalize();
-        if (tmpVec.length() > 0) {
-            tmpMat.makeRotationAxis(tmpVec, angle);
-            attribute.applyMatrix4(tmpMat);
-        }
-        tmpVec.copy(this.base).addScaledVector(this.axis, this.height / 2).sub(origin);
-        tmpMat.makeTranslation(tmpVec.x, tmpVec.y, tmpVec.z);
-        attribute.applyMatrix4(tmpMat);
-        return attribute.array;
-    }
-    /**
-     * @param origin		The origin for the current coordinate space. Can be null.
-     *
-     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
-     */
-    static computeOptimisedDownscalingBoundingCube(center0, radius0, center1, radius1, origin, minScale = 0.5) {
-        if (radius0 > radius1)
-            return this.computeOptimisedDownscalingBoundingCube(center1, radius1, center0, radius0, origin, minScale);
-        const facePositionsArray = new Float32Array([
-            // Smaller face
-            -1, -1, -1,
-            1, -1, -1,
-            -1, -1, 1,
-            1, -1, 1,
-            // Intermediate face
-            -1, 1, -1,
-            1, 1, -1,
-            -1, 1, 1,
-            1, 1, 1,
-            // Bigger face
-            -1, 1, -1,
-            1, 1, -1,
-            -1, 1, 1,
-            1, 1, 1,
-        ]);
-        const indexes = [
-            // Small face
-            0, 1, 3, 0, 3, 2,
-            // Small to intermediate faces
-            6, 4, 0, 6, 0, 2,
-            7, 6, 2, 7, 2, 3,
-            5, 7, 3, 5, 3, 1,
-            4, 5, 1, 4, 1, 0,
-            // Intermediate to big faces
-            10, 8, 4, 10, 4, 6,
-            11, 10, 6, 11, 6, 7,
-            9, 11, 7, 9, 7, 5,
-            8, 9, 5, 8, 5, 4,
-            // Big face
-            9, 8, 10, 9, 10, 11,
-        ];
-        const toPositions = function () {
-            const positions = new Float32Array(indexes.length * 3);
-            for (let i = 0; i < indexes.length; i++) {
-                const p = indexes[i] * 3;
-                positions[3 * i] = facePositionsArray[p];
-                positions[3 * i + 1] = facePositionsArray[p + 1];
-                positions[3 * i + 2] = facePositionsArray[p + 2];
-            }
-            return positions;
-        };
-        const tmpVec1 = new Vector3().subVectors(center1, center0);
-        if (tmpVec1.length() === 0)
-            throw "Capsule height must not be zero";
-        const sinTheta = (radius1 - radius0) / tmpVec1.length();
-        if (Math.abs(sinTheta) >= 1 / minScale * 0.9999) {
-            tmpVec1.addVectors(center0, center1).multiplyScalar(0.5);
-            for (let i = 0; i < facePositionsArray.length; i += 3) {
-                facePositionsArray[i] = tmpVec1.x;
-                facePositionsArray[i + 1] = tmpVec1.y;
-                facePositionsArray[i + 2] = tmpVec1.z;
-            }
-            return toPositions();
-        }
-        else if (Math.abs(sinTheta) > 1)
-            return this.computeOptimisedDownscalingBoundingCube(center0, minScale * radius0, center1, minScale * radius1, origin, 1);
-        const cosTheta = Math.cos(Math.asin(sinTheta));
-        const height = tmpVec1.length() + sinTheta * (radius0 - (minScale * minScale) * radius1);
-        const unscaledHeight = tmpVec1.length() + sinTheta * (radius0 - radius1);
-        tmpVec2.copy(center0).addScaledVector(tmpVec1.normalize(), -sinTheta * radius0);
-        const r0 = radius0 * cosTheta;
-        const r1 = radius1 * cosTheta;
-        let s = r1 > 0 ? r0 / r1 : 1;
-        for (let i = 0; i < 12; i += 3) {
-            facePositionsArray[i] *= s;
-            facePositionsArray[i + 2] *= s;
-        }
-        s = Math.cos(Math.asin(minScale * sinTheta)) * radius1 * minScale / r1;
-        for (let i = 24; i < 36; i += 3) {
-            facePositionsArray[i] *= s;
-            facePositionsArray[i + 2] *= s;
-        }
-        const newY = 2 * unscaledHeight / height - 1;
-        for (let i = 12; i < 24; i += 3)
-            facePositionsArray[i + 1] = newY;
-        const attribute = new BufferAttribute(toPositions(), 3);
-        tmpMat.makeScale(r1, height / 2, r1);
-        attribute.applyMatrix4(tmpMat);
-        tmpVec.set(0, 1, 0);
-        const angle = tmpVec.angleTo(tmpVec1);
-        const dot = tmpVec.dot(tmpVec1);
-        tmpVec.cross(tmpVec1).normalize();
-        if (tmpVec.length() > 0) {
-            tmpMat.makeRotationAxis(tmpVec, angle);
-            attribute.applyMatrix4(tmpMat);
-        }
-        else if (dot < 0) {
-            tmpMat.makeRotationZ(Math.PI);
-            attribute.applyMatrix4(tmpMat);
-        }
-        if (origin) {
-            tmpVec.copy(tmpVec2).addScaledVector(tmpVec1, height / 2).sub(origin);
-            tmpMat.makeTranslation(tmpVec.x, tmpVec.y, tmpVec.z);
-            attribute.applyMatrix4(tmpMat);
-        }
-        return attribute.array;
-    }
-    equals(frustum) {
-        return this.base.equals(frustum.base) &&
-            this.axis.equals(frustum.axis) &&
-            this.height === frustum.height &&
-            this.radius0 === frustum.radius0 &&
-            this.radius1 === frustum.radius1;
-    }
-}
 
 /**
  * @author baptistewagner & lucassort
@@ -451,193 +158,6 @@ class SpherifiedCubeBufferGeometry extends BufferGeometry {
         this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
     }
 }
-
-class Cone {
-    v;
-    axis;
-    theta;
-    inf;
-    sup;
-    cosTheta;
-    /**
-     *  @param v The cone origin
-     *  @param axis The axis, normalized.
-     *  @param theta The cone angle
-     *  @param sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
-     *  @param inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
-     */
-    constructor(v, axis, theta, inf, sup) {
-        this.v = v || new Vector3();
-        this.axis = axis || new Vector3(1, 0, 0);
-        this.theta = theta || 0;
-        this.inf = inf || 0;
-        this.sup = sup || +Infinity;
-        this.cosTheta = Math.cos(theta || 0);
-    }
-    set(v, axis, theta, inf, sup) {
-        this.v.copy(v);
-        this.axis.copy(axis);
-        this.theta = theta;
-        this.inf = inf || 0;
-        this.sup = sup || +Infinity;
-        this.cosTheta = Math.cos(theta);
-        return this;
-    }
-    clone() {
-        return (new Cone()).copy(this);
-    }
-    copy(cone) {
-        this.v.copy(cone.v);
-        this.axis.copy(cone.axis);
-        this.theta = cone.theta;
-        this.inf = cone.inf;
-        this.sup = cone.sup;
-        this.cosTheta = Math.cos(this.theta);
-        return this;
-    }
-    empty() {
-        return (this.theta <= 0 || this.inf >= this.sup);
-    }
-    getBoundingBox(target) {
-        throw "not implemented yet, todo";
-    }
-    equals(cone) {
-        return cone.v.equals(this.v) && cone.axis.equals(this.axis) && cone.theta === this.theta && cone.inf === this.inf && cone.sup === this.sup;
-    }
-}
-/**
- *
- * Compute intersections of a ray with a cone.
- * For more on this algorithm : http://www.geometrictools.com/Documentation/IntersectionLineCone.pdf
- *
- * @param cone is a truncated cone and must must define :
- *      v the singular point
- *      axis the cone direction
- *      inf >= 0 all points P such that Dot(axis,P-v) < inf are not considered in the cone
- *      sup > 0 all points P such that Dot(axis,P-v) > sup are not considered in the cone
- *
- * @param target Where to save the resulting hit point, if any.
- * @return {Vector3} The first hit point if any, null otherwise.
- *
- */
-Ray.prototype.intersectCone = function () {
-    // static variables for the function
-    var E = new Vector3();
-    var target2 = new Vector3();
-    return function (cone, target) {
-        // Set up the quadratic Q(t) = c2*t^2 + 2*c1*t + c0 that corresponds to
-        // the cone.  Let the vertex be V, the unit-length direction vector be A,
-        // and the angle measured from the cone axis to the cone wall be Theta,
-        // and define g = cos(Theta).  A point X is on the cone wall whenever
-        // Dot(A,(X-V)/|X-V|) = g.  Square this equation and factor to obtain
-        //   (X-V)^T * (A*A^T - g^2*I) * (X-V) = 0
-        // where the superscript T denotes the transpose operator.  This defines
-        // a double-sided cone.  The line is L(t) = P + t*D, where P is the line
-        // origin and D is a unit-length direction vector.  Substituting
-        // X = L(t) into the cone equation above leads to Q(t) = 0.  Since we
-        // want only intersection points on the single-sided cone that lives in
-        // the half-space pointed to by A, any point L(t) generated by a root of
-        // Q(t) = 0 must be tested for Dot(A,L(t)-V) >= 0.
-        var cos_angle = cone.cosTheta;
-        var AdD = cone.axis.dot(this.direction);
-        var cos_sqr = cos_angle * cos_angle;
-        E.subVectors(this.origin, cone.v);
-        var AdE = cone.axis.dot(E);
-        var DdE = this.direction.dot(E);
-        var EdE = E.dot(E);
-        var c2 = AdD * AdD - cos_sqr;
-        var c1 = AdD * AdE - cos_sqr * DdE;
-        var c0 = AdE * AdE - cos_sqr * EdE;
-        var dot;
-        // Solve the quadratic.  Keep only those X for which Dot(A,X-V) >= 0.
-        if (Math.abs(c2) >= 0) {
-            // c2 != 0
-            var discr = c1 * c1 - c0 * c2;
-            if (discr < 0) {
-                // Q(t) = 0 has no real-valued roots.  The line does not
-                // intersect the double-sided cone.
-                return null;
-            }
-            else if (discr > 0) {
-                // Q(t) = 0 has two distinct real-valued roots.  However, one or
-                // both of them might intersect the portion of the double-sided
-                // cone "behind" the vertex.  We are interested only in those
-                // intersections "in front" of the vertex.
-                var root = Math.sqrt(discr);
-                var invC2 = 1 / c2;
-                var quantity = 0;
-                var t = (-c1 - root) * invC2;
-                if (t > 0) {
-                    this.at(t, target);
-                    E.subVectors(target, cone.v);
-                    dot = E.dot(cone.axis);
-                    if (dot > cone.inf && dot < cone.sup) {
-                        quantity++;
-                    }
-                }
-                var t2 = (-c1 + root) * invC2;
-                if (t2 > 0 && t2 < t) {
-                    this.at(t2, target2);
-                    E.subVectors(target2, cone.v);
-                    dot = E.dot(cone.axis);
-                    if (dot > cone.inf && dot < cone.sup) {
-                        quantity++;
-                        target.copy(target2);
-                    }
-                }
-                if (quantity == 2) {
-                    // The line intersects the single-sided cone in front of the
-                    // vertex twice.
-                    return target;
-                }
-                else if (quantity == 1) {
-                    // The line intersects the single-sided cone in front of the
-                    // vertex once.  The other intersection is with the
-                    // single-sided cone behind the vertex.
-                    return target;
-                }
-                else {
-                    // The line intersects the single-sided cone behind the vertex
-                    // twice.
-                    return null;
-                }
-            }
-            else {
-                // One repeated real root (line is tangent to the cone).
-                var t = c1 / c2;
-                this.at(t, target);
-                E.subVectors(target, cone.v);
-                dot = E.dot(cone.axis);
-                if (dot > cone.inf && dot < cone.sup) {
-                    return target;
-                }
-                else {
-                    return null;
-                }
-            }
-        }
-        else if (Math.abs(c1) >= 0) {
-            // c2 = 0, c1 != 0 (D is a direction vector on the cone boundary)
-            var t = 0.5 * c0 / c1;
-            this.at(t, target);
-            E.subVectors(target, cone.v);
-            dot = E.dot(cone.axis);
-            if (dot > cone.inf && dot < cone.sup) {
-                return target;
-            }
-            else {
-                return null;
-            }
-        }
-        else {
-            // c2 = c1 = 0, c0 != 0
-            // OR
-            // c2 = c1 = c0 = 0, cone contains ray V+t*D where V is cone vertex
-            // and D is the line direction.
-            return null;
-        }
-    };
-}();
 
 /**
      * @author Maxime Quiblier / http://github.com/maximeq
@@ -1232,6 +752,486 @@ class EdgeSplitModifier {
 	}
 
 }
+
+const tmpVec = new Vector3(), tmpVec2 = new Vector3();
+const tmpMat = new Matrix4();
+const baseCubePositions = new BoxBufferGeometry(2, 2, 2).toNonIndexed().attributes.position;
+/**
+ * @author Max Godefroy <max@godefroy.net>
+ */
+class ConeFrustum {
+    base;
+    axis;
+    height;
+    radius0;
+    radius1;
+    constructor(base, axis, height, radius0, radius1) {
+        this.base = base || new Vector3();
+        this.axis = axis || new Vector3(0, 1, 0);
+        this.axis.normalize();
+        this.height = height || 1;
+        this.radius0 = radius0 || 0;
+        this.radius1 = radius1 || 0;
+    }
+    static fromCapsule(center0, radius0, center1, radius1) {
+        if (radius0 > radius1)
+            return this.fromCapsule(center1, radius1, center0, radius0);
+        const axis = new Vector3().subVectors(center1, center0);
+        if (axis.length() === 0)
+            throw "Capsule height must not be zero";
+        const sinTheta = (radius1 - radius0) / axis.length();
+        const height = axis.length() + sinTheta * (radius0 - radius1);
+        const base = new Vector3().copy(center0).addScaledVector(axis.normalize(), -sinTheta * radius0);
+        const cosTheta = Math.cos(Math.asin(sinTheta));
+        return new ConeFrustum(base, axis, height, radius0 * cosTheta, radius1 * cosTheta);
+    }
+    /**
+     *  Project the given point on the axis, in a direction orthogonal to the cone frustum surface.
+     **/
+    orthogonalProject(p, target) {
+        // We will work in 2D, in the orthogonal basis x = this.axis and y = orthogonal vector to this.axis in the plane (this.basis, p, this.basis + this.axis),
+        // and such that p has positive y coordinate in this basis.
+        // The wanted projection is the point at the intersection of:
+        //  - the local X axis (computation in the unit_dir basis)
+        //  and
+        //  - the line defined by P and the vector orthogonal to the weight line
+        const baseToP = tmpVec;
+        baseToP.subVectors(p, this.base);
+        const baseToPlsq = baseToP.lengthSq();
+        const p2Dx = baseToP.dot(this.axis);
+        // pythagore inc.
+        const p2DySq = baseToPlsq - p2Dx * p2Dx;
+        const p2Dy = p2DySq > 0 ? Math.sqrt(p2DySq) : 0; // because of rounded errors tmp can be <0 and this causes the next sqrt to return NaN...
+        const t = p2Dx - p2Dy * (this.radius0 - this.radius1) / this.height;
+        target.copy(this.axis).multiplyScalar(t).add(this.base);
+    }
+    copy(frustum) {
+        this.base = frustum.base.clone();
+        this.axis = frustum.axis.clone();
+        this.height = frustum.height;
+        this.radius0 = frustum.radius0;
+        this.radius1 = frustum.radius1;
+    }
+    clone() {
+        return new ConeFrustum().copy(this);
+    }
+    empty() {
+        return this.height === 0 || (this.radius0 === 0 && this.radius1 === 0);
+    }
+    getBoundingBox(target) {
+        const c = this.base.clone();
+        const d = new Vector3();
+        d.set(Math.sqrt(1.0 - this.axis.x * this.axis.x), Math.sqrt(1.0 - this.axis.y * this.axis.y), Math.sqrt(1.0 - this.axis.z * this.axis.z));
+        d.multiplyScalar(this.radius0);
+        const box1 = new Box3(new Vector3().subVectors(c, d), new Vector3().addVectors(c, d));
+        d.divideScalar(this.radius0);
+        d.multiplyScalar(this.radius1);
+        c.addScaledVector(this.axis, this.height);
+        const box2 = new Box3(new Vector3().subVectors(c, d), new Vector3().addVectors(c, d));
+        box1.union(box2);
+        if (target != null)
+            target.copy(box1);
+        return box1;
+    }
+    /**
+     * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
+     *
+     * @param origin		The origin for the current coordinate space
+     *
+     * @returns The cube position vertex coordinates as a flat array
+     */
+    computeOptimisedBoundingCube(origin) {
+        const attribute = baseCubePositions.clone();
+        const r = Math.max(this.radius0, this.radius1);
+        tmpMat.makeScale(r, this.height / 2, r);
+        attribute.applyMatrix4(tmpMat);
+        tmpVec.set(0, 1, 0);
+        const angle = tmpVec.angleTo(this.axis);
+        tmpVec.cross(this.axis).normalize();
+        if (tmpVec.length() > 0) {
+            tmpMat.makeRotationAxis(tmpVec, angle);
+            attribute.applyMatrix4(tmpMat);
+        }
+        tmpVec.copy(this.base).addScaledVector(this.axis, this.height / 2).sub(origin);
+        tmpMat.makeTranslation(tmpVec.x, tmpVec.y, tmpVec.z);
+        attribute.applyMatrix4(tmpMat);
+        return attribute.array;
+    }
+    /**
+     * @param origin		The origin for the current coordinate space. Can be null.
+     *
+     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
+     */
+    static computeOptimisedDownscalingBoundingCube(center0, radius0, center1, radius1, origin, minScale = 0.5) {
+        if (radius0 > radius1)
+            return this.computeOptimisedDownscalingBoundingCube(center1, radius1, center0, radius0, origin, minScale);
+        const facePositionsArray = new Float32Array([
+            // Smaller face
+            -1, -1, -1,
+            1, -1, -1,
+            -1, -1, 1,
+            1, -1, 1,
+            // Intermediate face
+            -1, 1, -1,
+            1, 1, -1,
+            -1, 1, 1,
+            1, 1, 1,
+            // Bigger face
+            -1, 1, -1,
+            1, 1, -1,
+            -1, 1, 1,
+            1, 1, 1,
+        ]);
+        const indexes = [
+            // Small face
+            0, 1, 3, 0, 3, 2,
+            // Small to intermediate faces
+            6, 4, 0, 6, 0, 2,
+            7, 6, 2, 7, 2, 3,
+            5, 7, 3, 5, 3, 1,
+            4, 5, 1, 4, 1, 0,
+            // Intermediate to big faces
+            10, 8, 4, 10, 4, 6,
+            11, 10, 6, 11, 6, 7,
+            9, 11, 7, 9, 7, 5,
+            8, 9, 5, 8, 5, 4,
+            // Big face
+            9, 8, 10, 9, 10, 11,
+        ];
+        const toPositions = function () {
+            const positions = new Float32Array(indexes.length * 3);
+            for (let i = 0; i < indexes.length; i++) {
+                const p = indexes[i] * 3;
+                positions[3 * i] = facePositionsArray[p];
+                positions[3 * i + 1] = facePositionsArray[p + 1];
+                positions[3 * i + 2] = facePositionsArray[p + 2];
+            }
+            return positions;
+        };
+        const tmpVec1 = new Vector3().subVectors(center1, center0);
+        if (tmpVec1.length() === 0)
+            throw "Capsule height must not be zero";
+        const sinTheta = (radius1 - radius0) / tmpVec1.length();
+        if (Math.abs(sinTheta) >= 1 / minScale * 0.9999) {
+            tmpVec1.addVectors(center0, center1).multiplyScalar(0.5);
+            for (let i = 0; i < facePositionsArray.length; i += 3) {
+                facePositionsArray[i] = tmpVec1.x;
+                facePositionsArray[i + 1] = tmpVec1.y;
+                facePositionsArray[i + 2] = tmpVec1.z;
+            }
+            return toPositions();
+        }
+        else if (Math.abs(sinTheta) > 1)
+            return this.computeOptimisedDownscalingBoundingCube(center0, minScale * radius0, center1, minScale * radius1, origin, 1);
+        const cosTheta = Math.cos(Math.asin(sinTheta));
+        const height = tmpVec1.length() + sinTheta * (radius0 - (minScale * minScale) * radius1);
+        const unscaledHeight = tmpVec1.length() + sinTheta * (radius0 - radius1);
+        tmpVec2.copy(center0).addScaledVector(tmpVec1.normalize(), -sinTheta * radius0);
+        const r0 = radius0 * cosTheta;
+        const r1 = radius1 * cosTheta;
+        let s = r1 > 0 ? r0 / r1 : 1;
+        for (let i = 0; i < 12; i += 3) {
+            facePositionsArray[i] *= s;
+            facePositionsArray[i + 2] *= s;
+        }
+        s = Math.cos(Math.asin(minScale * sinTheta)) * radius1 * minScale / r1;
+        for (let i = 24; i < 36; i += 3) {
+            facePositionsArray[i] *= s;
+            facePositionsArray[i + 2] *= s;
+        }
+        const newY = 2 * unscaledHeight / height - 1;
+        for (let i = 12; i < 24; i += 3)
+            facePositionsArray[i + 1] = newY;
+        const attribute = new BufferAttribute(toPositions(), 3);
+        tmpMat.makeScale(r1, height / 2, r1);
+        attribute.applyMatrix4(tmpMat);
+        tmpVec.set(0, 1, 0);
+        const angle = tmpVec.angleTo(tmpVec1);
+        const dot = tmpVec.dot(tmpVec1);
+        tmpVec.cross(tmpVec1).normalize();
+        if (tmpVec.length() > 0) {
+            tmpMat.makeRotationAxis(tmpVec, angle);
+            attribute.applyMatrix4(tmpMat);
+        }
+        else if (dot < 0) {
+            tmpMat.makeRotationZ(Math.PI);
+            attribute.applyMatrix4(tmpMat);
+        }
+        if (origin) {
+            tmpVec.copy(tmpVec2).addScaledVector(tmpVec1, height / 2).sub(origin);
+            tmpMat.makeTranslation(tmpVec.x, tmpVec.y, tmpVec.z);
+            attribute.applyMatrix4(tmpMat);
+        }
+        return attribute.array;
+    }
+    equals(frustum) {
+        return this.base.equals(frustum.base) &&
+            this.axis.equals(frustum.axis) &&
+            this.height === frustum.height &&
+            this.radius0 === frustum.radius0 &&
+            this.radius1 === frustum.radius1;
+    }
+}
+
+Ray.prototype.intersectsConeFrustum = function () {
+    const D = new Vector3();
+    const target2 = new Vector3();
+    const u = new Vector3();
+    return function (frustum, target) {
+        if (target == null)
+            target = target2;
+        const deltaR = frustum.radius1 - frustum.radius0;
+        const r = 1 + Math.pow(deltaR / frustum.height, 2);
+        const R = frustum.radius0 * deltaR / frustum.height;
+        D.subVectors(this.origin, frustum.base);
+        const DdA = D.dot(frustum.axis);
+        const DdD = D.dot(D);
+        const VdA = this.direction.dot(frustum.axis);
+        const VdD = this.direction.dot(D);
+        const VdV = this.direction.dot(this.direction);
+        const c0 = frustum.radius0 * frustum.radius0 + 2 * R * DdA + r * DdA * DdA - DdD;
+        const c1 = R * VdA + r * DdA * VdA - VdD;
+        const c2 = r * VdA * VdA - VdV;
+        if (c2 !== 0) {
+            const discr = c1 * c1 - c2 * c0;
+            if (discr < 0)
+                return null;
+            else if (discr === 0) {
+                const t = -c1 / c2;
+                u.copy(D);
+                u.addScaledVector(this.direction, t);
+                const d = frustum.axis.dot(u);
+                if (t >= 0 && d >= 0 && d <= frustum.height) {
+                    target2.addVectors(frustum.base, u);
+                    target.copy(target2);
+                    return target2;
+                }
+            }
+            else {
+                let quantity = 0;
+                const root = Math.sqrt(discr);
+                const t0 = (-c1 - root) / c2;
+                u.copy(D);
+                u.addScaledVector(this.direction, t0);
+                let d = frustum.axis.dot(u);
+                if (t0 >= 0 && d >= 0 && d <= frustum.height) {
+                    target2.addVectors(frustum.base, u);
+                    quantity++;
+                }
+                const t1 = (-c1 + root) / c2;
+                u.copy(D);
+                u.addScaledVector(this.direction, t1);
+                d = frustum.axis.dot(u);
+                if (t1 >= 0 && (quantity === 0 || t0 > t1) && d >= 0 && d <= frustum.height) {
+                    target2.addVectors(frustum.base, u);
+                    quantity++;
+                }
+                if (quantity)
+                    target.copy(target2);
+                return quantity ? target2 : null;
+            }
+        }
+        else if (c1 !== 0) {
+            const t = -2 * c0 / c1;
+            u.copy(D);
+            u.addScaledVector(this.direction, t);
+            const d = frustum.axis.dot(u);
+            if (t >= 0 && d >= 0 && d <= frustum.height) {
+                target2.addVectors(frustum.base, u);
+                target.copy(target2);
+                return target;
+            }
+        }
+        return null;
+    };
+}();
+
+class Cone {
+    v;
+    axis;
+    theta;
+    inf;
+    sup;
+    cosTheta;
+    /**
+     *  @param v The cone origin
+     *  @param axis The axis, normalized.
+     *  @param theta The cone angle
+     *  @param sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
+     *  @param inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
+     */
+    constructor(v, axis, theta, inf, sup) {
+        this.v = v || new Vector3();
+        this.axis = axis || new Vector3(1, 0, 0);
+        this.theta = theta || 0;
+        this.inf = inf || 0;
+        this.sup = sup || +Infinity;
+        this.cosTheta = Math.cos(theta || 0);
+    }
+    set(v, axis, theta, inf, sup) {
+        this.v.copy(v);
+        this.axis.copy(axis);
+        this.theta = theta;
+        this.inf = inf || 0;
+        this.sup = sup || +Infinity;
+        this.cosTheta = Math.cos(theta);
+        return this;
+    }
+    clone() {
+        return (new Cone()).copy(this);
+    }
+    copy(cone) {
+        this.v.copy(cone.v);
+        this.axis.copy(cone.axis);
+        this.theta = cone.theta;
+        this.inf = cone.inf;
+        this.sup = cone.sup;
+        this.cosTheta = Math.cos(this.theta);
+        return this;
+    }
+    empty() {
+        return (this.theta <= 0 || this.inf >= this.sup);
+    }
+    getBoundingBox(target) {
+        throw "not implemented yet, todo";
+    }
+    equals(cone) {
+        return cone.v.equals(this.v) && cone.axis.equals(this.axis) && cone.theta === this.theta && cone.inf === this.inf && cone.sup === this.sup;
+    }
+}
+/**
+ *
+ * Compute intersections of a ray with a cone.
+ * For more on this algorithm : http://www.geometrictools.com/Documentation/IntersectionLineCone.pdf
+ *
+ * @param cone is a truncated cone and must must define :
+ *      v the singular point
+ *      axis the cone direction
+ *      inf >= 0 all points P such that Dot(axis,P-v) < inf are not considered in the cone
+ *      sup > 0 all points P such that Dot(axis,P-v) > sup are not considered in the cone
+ *
+ * @param target Where to save the resulting hit point, if any.
+ * @return {Vector3} The first hit point if any, null otherwise.
+ *
+ */
+Ray.prototype.intersectCone = function () {
+    // static variables for the function
+    var E = new Vector3();
+    var target2 = new Vector3();
+    return function (cone, target) {
+        // Set up the quadratic Q(t) = c2*t^2 + 2*c1*t + c0 that corresponds to
+        // the cone.  Let the vertex be V, the unit-length direction vector be A,
+        // and the angle measured from the cone axis to the cone wall be Theta,
+        // and define g = cos(Theta).  A point X is on the cone wall whenever
+        // Dot(A,(X-V)/|X-V|) = g.  Square this equation and factor to obtain
+        //   (X-V)^T * (A*A^T - g^2*I) * (X-V) = 0
+        // where the superscript T denotes the transpose operator.  This defines
+        // a double-sided cone.  The line is L(t) = P + t*D, where P is the line
+        // origin and D is a unit-length direction vector.  Substituting
+        // X = L(t) into the cone equation above leads to Q(t) = 0.  Since we
+        // want only intersection points on the single-sided cone that lives in
+        // the half-space pointed to by A, any point L(t) generated by a root of
+        // Q(t) = 0 must be tested for Dot(A,L(t)-V) >= 0.
+        var cos_angle = cone.cosTheta;
+        var AdD = cone.axis.dot(this.direction);
+        var cos_sqr = cos_angle * cos_angle;
+        E.subVectors(this.origin, cone.v);
+        var AdE = cone.axis.dot(E);
+        var DdE = this.direction.dot(E);
+        var EdE = E.dot(E);
+        var c2 = AdD * AdD - cos_sqr;
+        var c1 = AdD * AdE - cos_sqr * DdE;
+        var c0 = AdE * AdE - cos_sqr * EdE;
+        var dot;
+        // Solve the quadratic.  Keep only those X for which Dot(A,X-V) >= 0.
+        if (Math.abs(c2) >= 0) {
+            // c2 != 0
+            var discr = c1 * c1 - c0 * c2;
+            if (discr < 0) {
+                // Q(t) = 0 has no real-valued roots.  The line does not
+                // intersect the double-sided cone.
+                return null;
+            }
+            else if (discr > 0) {
+                // Q(t) = 0 has two distinct real-valued roots.  However, one or
+                // both of them might intersect the portion of the double-sided
+                // cone "behind" the vertex.  We are interested only in those
+                // intersections "in front" of the vertex.
+                var root = Math.sqrt(discr);
+                var invC2 = 1 / c2;
+                var quantity = 0;
+                var t = (-c1 - root) * invC2;
+                if (t > 0) {
+                    this.at(t, target);
+                    E.subVectors(target, cone.v);
+                    dot = E.dot(cone.axis);
+                    if (dot > cone.inf && dot < cone.sup) {
+                        quantity++;
+                    }
+                }
+                var t2 = (-c1 + root) * invC2;
+                if (t2 > 0 && t2 < t) {
+                    this.at(t2, target2);
+                    E.subVectors(target2, cone.v);
+                    dot = E.dot(cone.axis);
+                    if (dot > cone.inf && dot < cone.sup) {
+                        quantity++;
+                        target.copy(target2);
+                    }
+                }
+                if (quantity == 2) {
+                    // The line intersects the single-sided cone in front of the
+                    // vertex twice.
+                    return target;
+                }
+                else if (quantity == 1) {
+                    // The line intersects the single-sided cone in front of the
+                    // vertex once.  The other intersection is with the
+                    // single-sided cone behind the vertex.
+                    return target;
+                }
+                else {
+                    // The line intersects the single-sided cone behind the vertex
+                    // twice.
+                    return null;
+                }
+            }
+            else {
+                // One repeated real root (line is tangent to the cone).
+                var t = c1 / c2;
+                this.at(t, target);
+                E.subVectors(target, cone.v);
+                dot = E.dot(cone.axis);
+                if (dot > cone.inf && dot < cone.sup) {
+                    return target;
+                }
+                else {
+                    return null;
+                }
+            }
+        }
+        else if (Math.abs(c1) >= 0) {
+            // c2 = 0, c1 != 0 (D is a direction vector on the cone boundary)
+            var t = 0.5 * c0 / c1;
+            this.at(t, target);
+            E.subVectors(target, cone.v);
+            dot = E.dot(cone.axis);
+            if (dot > cone.inf && dot < cone.sup) {
+                return target;
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            // c2 = c1 = 0, c0 != 0
+            // OR
+            // c2 = c1 = c0 = 0, cone contains ray V+t*D where V is cone vertex
+            // and D is the line direction.
+            return null;
+        }
+    };
+}();
 
 export { Cone, ConeFrustum, EdgeSplitModifier, IcosahedronSphereBufferGeometry, MeshNormalDepthMaterial, MeshRGBADepthMaterial, MeshViewPositionMaterial, MeshWorldNormalMaterial, MeshWorldPositionMaterial, RoundedCubeBufferGeometry, SpherifiedCubeBufferGeometry };
 //# sourceMappingURL=three-js-extra-public.module.js.map

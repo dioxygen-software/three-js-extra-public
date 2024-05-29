@@ -1,48 +1,5 @@
 import * as three from 'three';
-import { Vector3, Box3, IcosahedronBufferGeometry, BufferGeometry, ShaderMaterial, Vector2, MeshDepthMaterial } from 'three';
-
-/**
- * @author Max Godefroy <max@godefroy.net>
- */
-declare class ConeFrustum {
-    base: Vector3;
-    axis: Vector3;
-    height: number;
-    radius0: number;
-    radius1: number;
-    constructor(base?: Vector3, axis?: Vector3, height?: number, radius0?: number, radius1?: number);
-    static fromCapsule(center0: Vector3, radius0: number, center1: Vector3, radius1: number): ConeFrustum;
-    /**
-     *  Project the given point on the axis, in a direction orthogonal to the cone frustum surface.
-     **/
-    orthogonalProject(p: Vector3, target: Vector3): void;
-    copy(frustum: ConeFrustum): void;
-    clone(): void;
-    empty(): boolean;
-    getBoundingBox(target?: Box3): Box3;
-    /**
-     * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
-     *
-     * @param origin		The origin for the current coordinate space
-     *
-     * @returns The cube position vertex coordinates as a flat array
-     */
-    computeOptimisedBoundingCube(origin: Vector3): ArrayLike<number>;
-    /**
-     * @param origin		The origin for the current coordinate space. Can be null.
-     *
-     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
-     */
-    static computeOptimisedDownscalingBoundingCube(center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin?: Vector3 | null, minScale?: number): Float32Array;
-    equals(frustum: ConeFrustum): boolean;
-}
-
-declare module "three" {
-    interface Ray {
-        intersectsConeFrustum(frustum: ConeFrustum, target: Vector3 | null): Vector3 | null;
-    }
-}
-//# sourceMappingURL=RayIntersect.d.ts.map
+import { IcosahedronBufferGeometry, BufferGeometry, ShaderMaterial, Vector2, MeshDepthMaterial, Vector3, Box3 } from 'three';
 
 /**
  * @author baptistewagner & lucassort
@@ -68,34 +25,6 @@ declare class SpherifiedCubeBufferGeometry extends BufferGeometry {
         widthHeightSegments: number;
     };
     constructor(radius: number, widthHeightSegments: number);
-}
-
-declare class Cone {
-    v: Vector3;
-    axis: Vector3;
-    theta: number;
-    inf: number;
-    sup: number;
-    cosTheta: number;
-    /**
-     *  @param v The cone origin
-     *  @param axis The axis, normalized.
-     *  @param theta The cone angle
-     *  @param sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
-     *  @param inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
-     */
-    constructor(v?: Vector3, axis?: Vector3, theta?: number, inf?: number, sup?: number);
-    set(v: Vector3, axis: Vector3, theta: number, inf: number, sup: number): this;
-    clone(): Cone;
-    copy(cone: Cone): Cone;
-    empty(): boolean;
-    getBoundingBox(target: Vector3): void;
-    equals(cone: Cone): boolean;
-}
-declare module "three" {
-    interface Ray {
-        intersectCone(cone: Cone, target: Vector3): Vector3 | null;
-    }
 }
 
 /**
@@ -196,6 +125,77 @@ declare class MeshWorldPositionMaterial extends ShaderMaterial {
 
 declare class EdgeSplitModifier {
     modify(geometry: any, cutOffAngle: any, tryKeepNormals?: boolean): any;
+}
+
+/**
+ * @author Max Godefroy <max@godefroy.net>
+ */
+declare class ConeFrustum {
+    base: Vector3;
+    axis: Vector3;
+    height: number;
+    radius0: number;
+    radius1: number;
+    constructor(base?: Vector3, axis?: Vector3, height?: number, radius0?: number, radius1?: number);
+    static fromCapsule(center0: Vector3, radius0: number, center1: Vector3, radius1: number): ConeFrustum;
+    /**
+     *  Project the given point on the axis, in a direction orthogonal to the cone frustum surface.
+     **/
+    orthogonalProject(p: Vector3, target: Vector3): void;
+    copy(frustum: ConeFrustum): void;
+    clone(): void;
+    empty(): boolean;
+    getBoundingBox(target?: Box3): Box3;
+    /**
+     * @deprecated Use `ConeFrustum.computeOptimisedDownscalingBoundingCube` instead
+     *
+     * @param origin		The origin for the current coordinate space
+     *
+     * @returns The cube position vertex coordinates as a flat array
+     */
+    computeOptimisedBoundingCube(origin: Vector3): ArrayLike<number>;
+    /**
+     * @param origin		The origin for the current coordinate space. Can be null.
+     *
+     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
+     */
+    static computeOptimisedDownscalingBoundingCube(center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin?: Vector3 | null, minScale?: number): Float32Array;
+    equals(frustum: ConeFrustum): boolean;
+}
+
+declare module "three" {
+    interface Ray {
+        intersectsConeFrustum(frustum: ConeFrustum, target: Vector3 | null): Vector3 | null;
+    }
+}
+//# sourceMappingURL=RayIntersect.d.ts.map
+
+declare class Cone {
+    v: Vector3;
+    axis: Vector3;
+    theta: number;
+    inf: number;
+    sup: number;
+    cosTheta: number;
+    /**
+     *  @param v The cone origin
+     *  @param axis The axis, normalized.
+     *  @param theta The cone angle
+     *  @param sup The maximum distance from v in the axis direction (truncated cone). If null or undefined, will be +infinity
+     *  @param inf The minimum distance from v in the axis direction (truncated cone). if null or undefined, will be 0
+     */
+    constructor(v?: Vector3, axis?: Vector3, theta?: number, inf?: number, sup?: number);
+    set(v: Vector3, axis: Vector3, theta: number, inf: number, sup: number): this;
+    clone(): Cone;
+    copy(cone: Cone): Cone;
+    empty(): boolean;
+    getBoundingBox(target: Vector3): void;
+    equals(cone: Cone): boolean;
+}
+declare module "three" {
+    interface Ray {
+        intersectCone(cone: Cone, target: Vector3): Vector3 | null;
+    }
 }
 
 export { Cone, ConeFrustum, EdgeSplitModifier, IcosahedronSphereBufferGeometry, MeshNormalDepthMaterial, MeshRGBADepthMaterial, MeshViewPositionMaterial, MeshWorldNormalMaterial, MeshWorldPositionMaterial, RoundedCubeBufferGeometry, SpherifiedCubeBufferGeometry };

@@ -61,7 +61,7 @@ export class RoundedCubeBufferGeometry extends BufferGeometry {
             uvs.push(uvArray[i]);
         }
 
-        // cubeBufferGeometry.index check for TypesScript, it is not supposed to be null 
+        // CubeBufferGeometry shouldn't have a null index attribute.
         if (cubeBufferGeometry.index === null) {
             throw "cubeBufferGeometry has null index attribute."
         }

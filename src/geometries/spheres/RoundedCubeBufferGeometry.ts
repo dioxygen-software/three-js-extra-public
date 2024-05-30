@@ -25,19 +25,19 @@ export class RoundedCubeBufferGeometry extends BufferGeometry {
             widthHeightSegments: widthHeightSegments,
         };
 
-        var vertex = new Vector3();
-        var normal = new Vector3();
+        const vertex = new Vector3();
+        const normal = new Vector3();
 
         // buffers
 
-        var indices = [];
-        var vertices = [];
-        var normals = [];
-        var uvs = [];
+        const indices = [];
+        const vertices = [];
+        const normals = [];
+        const uvs = [];
 
         // we create a normal cube and buffer it in our geometry
 
-        var cubeBufferGeometry = new BoxBufferGeometry(
+        const cubeBufferGeometry = new BoxBufferGeometry(
             1,
             1,
             1,
@@ -73,10 +73,10 @@ export class RoundedCubeBufferGeometry extends BufferGeometry {
         }
         // then normalizing the cube to have a sphere
 
-        var vIndex;
+        let vIndex;
 
-        var verticesSphere = [];
-        var normalsSphere = [];
+        const verticesSphere = [];
+        const normalsSphere = [];
 
         // generate vertices, normals and uvs
 

@@ -1,1 +1,1 @@
-{"version":3,"file":"EdgeSplitModifier.d.ts","sourceRoot":"","sources":["../../../src/modifiers/EdgeSplitModifier.js"],"names":[],"mappings":"AAOA;IAEC,uEAkRC;CAED"}
+{"version":3,"file":"EdgeSplitModifier.d.ts","sourceRoot":"","sources":["../../../src/modifiers/EdgeSplitModifier.ts"],"names":[],"mappings":"AAAA,OAAO,EAAmB,cAAc,EAAW,MAAM,OAAO,CAAC;AAOjE,cAAM,iBAAiB;IAEtB,MAAM,CAAE,QAAQ,EAAE,cAAc,EAAE,WAAW,EAAE,MAAM,EAAE,cAAc,UAAO;CAuR5E;AAID,OAAO,EAAE,iBAAiB,EAAE,CAAC"}

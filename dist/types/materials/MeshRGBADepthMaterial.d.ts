@@ -1,10 +1,11 @@
+import { MeshDepthMaterial, type MeshDepthMaterialParameters } from 'three';
 /**
  * @author Maxime Quiblier / http://github.com/maximeq
  * Material packing depth as rgba values.
  * It is basically just MeshDepthMaterial with depthPacking at THREE.RGBADepthPacking
  */
-export class MeshRGBADepthMaterial extends MeshDepthMaterial {
-    constructor(parameters: any);
+declare class MeshRGBADepthMaterial extends MeshDepthMaterial {
+    constructor(parameters: MeshDepthMaterialParameters);
 }
-import { MeshDepthMaterial } from 'three';
+export { MeshRGBADepthMaterial };
 //# sourceMappingURL=MeshRGBADepthMaterial.d.ts.map

@@ -1,25 +1,26 @@
+import { ShaderMaterial, type ShaderMaterialParameters, Vector2, type Texture, type NormalMapTypes } from 'three';
+interface MeshNormalDepthMaterialParameters extends ShaderMaterialParameters {
+    linearize_depth: boolean;
+}
 /**
      * @author Maxime Quiblier / http://github.com/maximeq
      *
-     * This material will save view space normals in pixels inside rbg channels as well as Depth inside the alpha channel
+     * This material will save view space normals in pixels inside rgb channels as well as Depth inside the alpha channel
      * Use same parameters as for MeshNormalMaterial.
-     *
-     *
      */
-export class MeshNormalDepthMaterial extends ShaderMaterial {
-    constructor(parameters: any);
-    bumpMap: any;
+declare class MeshNormalDepthMaterial extends ShaderMaterial {
+    bumpMap: Texture | null;
     bumpScale: number;
-    normalMap: any;
-    normalMapType: import("three").NormalMapTypes;
+    normalMap: Texture | null;
+    normalMapType: NormalMapTypes;
     normalScale: Vector2;
-    displacementMap: any;
+    displacementMap: Texture | null;
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
     isMeshNormalMaterial: boolean;
     isMeshNormalDepthMaterial: boolean;
+    constructor(parameters: MeshNormalDepthMaterialParameters);
 }
-import { ShaderMaterial } from 'three';
-import { Vector2 } from 'three';
+export { MeshNormalDepthMaterial };
 //# sourceMappingURL=MeshNormalDepthMaterial.d.ts.map

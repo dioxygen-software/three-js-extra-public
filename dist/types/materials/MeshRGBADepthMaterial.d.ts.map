@@ -1,1 +1,1 @@
-{"version":3,"file":"MeshRGBADepthMaterial.d.ts","sourceRoot":"","sources":["../../../src/materials/MeshRGBADepthMaterial.js"],"names":[],"mappings":"AAEA;;;;GAIG;AACH;IAEI,6BAMC;CAEJ;kCAjBmD,OAAO"}
+{"version":3,"file":"MeshRGBADepthMaterial.d.ts","sourceRoot":"","sources":["../../../src/materials/MeshRGBADepthMaterial.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,iBAAiB,EAAoB,KAAK,2BAA2B,EAAE,MAAM,OAAO,CAAA;AAE7F;;;;GAIG;AACH,cAAM,qBAAsB,SAAQ,iBAAiB;gBAErC,UAAU,EAAE,2BAA2B;CAQtD;AAED,OAAO,EAAE,qBAAqB,EAAE,CAAC"}

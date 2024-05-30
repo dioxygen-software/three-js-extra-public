@@ -1,15 +1,10 @@
+import { ShaderMaterial } from 'three';
 /**
  * @author Maxime Quiblier / http://github.com/maximeq
  *
  */
-export class MeshWorldPositionMaterial extends ShaderMaterial {
+declare class MeshWorldPositionMaterial extends ShaderMaterial {
     constructor(parameters: any);
-    displacementMap: any;
-    displacementScale: number;
-    displacementBias: number;
-    skinning: boolean;
-    isMeshDepthMaterial: boolean;
-    isMeshWorldPositionMaterial: boolean;
 }
-import { ShaderMaterial } from 'three';
+export { MeshWorldPositionMaterial };
 //# sourceMappingURL=MeshWorldPositionMaterial.d.ts.map

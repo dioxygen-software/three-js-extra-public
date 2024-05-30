@@ -1,4 +1,4 @@
-import { ShaderLib, ShaderMaterial, UniformsUtils } from 'three';
+import { ShaderLib, ShaderMaterial, type ShaderMaterialParameters, UniformsUtils } from 'three';
 
 /**
      * @author Maxime Quiblier / http://github.com/maximeq
@@ -13,7 +13,12 @@ import { ShaderLib, ShaderMaterial, UniformsUtils } from 'three';
      */
 class MeshViewPositionMaterial extends ShaderMaterial {
 
-    constructor(parameters) {
+    displacementMap: any;
+    displacementScale: number;
+    displacementBias: number;
+    skinning: boolean;
+
+    constructor(parameters: ShaderMaterialParameters) {
 
         parameters = parameters || {};
 

@@ -1,4 +1,4 @@
-import { MeshDepthMaterial, RGBADepthPacking } from 'three'
+import { MeshDepthMaterial, RGBADepthPacking, type MeshDepthMaterialParameters } from 'three'
 
 /**
  * @author Maxime Quiblier / http://github.com/maximeq
@@ -7,7 +7,7 @@ import { MeshDepthMaterial, RGBADepthPacking } from 'three'
  */
 class MeshRGBADepthMaterial extends MeshDepthMaterial {
 
-    constructor(parameters) {
+    constructor(parameters: MeshDepthMaterialParameters) {
 
         parameters = parameters || {};
         parameters.depthPacking = RGBADepthPacking;

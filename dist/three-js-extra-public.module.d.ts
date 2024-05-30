@@ -1,5 +1,4 @@
-import * as three from 'three';
-import { IcosahedronBufferGeometry, BufferGeometry, ShaderMaterial, Vector2, MeshDepthMaterial, Vector3, Box3 } from 'three';
+import { IcosahedronBufferGeometry, BufferGeometry, ShaderMaterial, Texture, NormalMapTypes, Vector2, ShaderMaterialParameters, MeshDepthMaterial, MeshDepthMaterialParameters, Mesh, Vector3, Box3 } from 'three';
 
 /**
  * @author baptistewagner & lucassort
@@ -27,28 +26,30 @@ declare class SpherifiedCubeBufferGeometry extends BufferGeometry {
     constructor(radius: number, widthHeightSegments: number);
 }
 
+interface MeshNormalDepthMaterialParameters extends ShaderMaterialParameters {
+    linearize_depth: boolean;
+}
 /**
      * @author Maxime Quiblier / http://github.com/maximeq
      *
-     * This material will save view space normals in pixels inside rbg channels as well as Depth inside the alpha channel
+     * This material will save view space normals in pixels inside rgb channels as well as Depth inside the alpha channel
      * Use same parameters as for MeshNormalMaterial.
-     *
-     *
      */
 declare class MeshNormalDepthMaterial extends ShaderMaterial {
-    constructor(parameters: any);
-    bumpMap: any;
+    bumpMap: Texture | null;
     bumpScale: number;
-    normalMap: any;
-    normalMapType: three.NormalMapTypes;
+    normalMap: Texture | null;
+    normalMapType: NormalMapTypes;
     normalScale: Vector2;
-    displacementMap: any;
+    displacementMap: Texture | null;
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
     isMeshNormalMaterial: boolean;
     isMeshNormalDepthMaterial: boolean;
+    constructor(parameters: MeshNormalDepthMaterialParameters);
 }
+//# sourceMappingURL=MeshNormalDepthMaterial.d.ts.map
 
 /**
  * @author Maxime Quiblier / http://github.com/maximeq
@@ -56,8 +57,9 @@ declare class MeshNormalDepthMaterial extends ShaderMaterial {
  * It is basically just MeshDepthMaterial with depthPacking at THREE.RGBADepthPacking
  */
 declare class MeshRGBADepthMaterial extends MeshDepthMaterial {
-    constructor(parameters: any);
+    constructor(parameters: MeshDepthMaterialParameters);
 }
+//# sourceMappingURL=MeshRGBADepthMaterial.d.ts.map
 
 /**
      * @author Maxime Quiblier / http://github.com/maximeq
@@ -71,12 +73,13 @@ declare class MeshRGBADepthMaterial extends MeshDepthMaterial {
      *                            x = 4*unpackRGBAToDepth(rgba) - 1;
      */
 declare class MeshViewPositionMaterial extends ShaderMaterial {
-    constructor(parameters: any);
     displacementMap: any;
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
+    constructor(parameters: ShaderMaterialParameters);
 }
+//# sourceMappingURL=MeshViewPositionMaterial.d.ts.map
 
 /**
      * @author Maxime Quiblier / http://github.com/maximeq
@@ -89,25 +92,26 @@ declare class MeshViewPositionMaterial extends ShaderMaterial {
      * see MeshWorldNormalMaterial.updateMeshOnBeforeRender for more details.
      */
 declare class MeshWorldNormalMaterial extends ShaderMaterial {
-    constructor(parameters: any);
-    bumpMap: any;
+    bumpMap: Texture | null;
     bumpScale: number;
-    normalMap: any;
-    normalMapType: three.NormalMapTypes;
+    normalMap: Texture | null;
+    normalMapType: NormalMapTypes;
     normalScale: Vector2;
-    displacementMap: any;
+    displacementMap: Texture | null;
     displacementScale: number;
     displacementBias: number;
     skinning: boolean;
     isMeshNormalMaterial: boolean;
     isMeshWorldNormalMaterial: boolean;
+    constructor(parameters: ShaderMaterialParameters);
     /**
      *  Helper to update the mesh onBeforeRender function to update the vewMatrixInverse uniform.
      *  Call it only once on each mesh or it may impact performances.
      *  Note that previously set onBeforeRender will be preserved.
      */
-    updateMeshOnBeforeRender: (mesh: any) => void;
+    updateMeshOnBeforeRender: (mesh: Mesh) => void;
 }
+//# sourceMappingURL=MeshWorldNormalMaterial.d.ts.map
 
 /**
  * @author Maxime Quiblier / http://github.com/maximeq
@@ -115,17 +119,13 @@ declare class MeshWorldNormalMaterial extends ShaderMaterial {
  */
 declare class MeshWorldPositionMaterial extends ShaderMaterial {
     constructor(parameters: any);
-    displacementMap: any;
-    displacementScale: number;
-    displacementBias: number;
-    skinning: boolean;
-    isMeshDepthMaterial: boolean;
-    isMeshWorldPositionMaterial: boolean;
 }
+//# sourceMappingURL=MeshWorldPositionMaterial.d.ts.map
 
 declare class EdgeSplitModifier {
-    modify(geometry: any, cutOffAngle: any, tryKeepNormals?: boolean): any;
+    modify(geometry: BufferGeometry, cutOffAngle: number, tryKeepNormals?: boolean): BufferGeometry | undefined;
 }
+//# sourceMappingURL=EdgeSplitModifier.d.ts.map
 
 /**
  * @author Max Godefroy <max@godefroy.net>

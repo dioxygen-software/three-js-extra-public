@@ -157,7 +157,7 @@ declare class ConeFrustum {
     /**
      * @param origin		The origin for the current coordinate space. Can be null.
      *
-     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
+     * @returns The cube position vertex coordinates as a flat array
      */
     static computeOptimisedDownscalingBoundingCube(center0: Vector3, radius0: number, center1: Vector3, radius1: number, origin?: Vector3 | null, minScale?: number): Float32Array;
     equals(frustum: ConeFrustum): boolean;

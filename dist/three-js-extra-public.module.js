@@ -25,15 +25,15 @@ class RoundedCubeBufferGeometry extends BufferGeometry {
             radius: radius,
             widthHeightSegments: widthHeightSegments,
         };
-        var vertex = new Vector3();
-        var normal = new Vector3();
+        const vertex = new Vector3();
+        const normal = new Vector3();
         // buffers
-        var indices = [];
-        var vertices = [];
-        var normals = [];
-        var uvs = [];
+        const indices = [];
+        const vertices = [];
+        const normals = [];
+        const uvs = [];
         // we create a normal cube and buffer it in our geometry
-        var cubeBufferGeometry = new BoxBufferGeometry(1, 1, 1, widthHeightSegments, widthHeightSegments, widthHeightSegments);
+        const cubeBufferGeometry = new BoxBufferGeometry(1, 1, 1, widthHeightSegments, widthHeightSegments, widthHeightSegments);
         let positionArray = cubeBufferGeometry.getAttribute("position").array;
         for (let i = 0; i < positionArray.length; ++i) {
             vertices.push(positionArray[i]);
@@ -46,7 +46,7 @@ class RoundedCubeBufferGeometry extends BufferGeometry {
         for (let i = 0; i < uvArray.length; ++i) {
             uvs.push(uvArray[i]);
         }
-        // cubeBufferGeometry.index check for TypesScript, it is not supposed to be null 
+        // CubeBufferGeometry shouldn't have a null index attribute.
         if (cubeBufferGeometry.index === null) {
             throw "cubeBufferGeometry has null index attribute.";
         }
@@ -55,9 +55,9 @@ class RoundedCubeBufferGeometry extends BufferGeometry {
             indices.push(indexArray[i]);
         }
         // then normalizing the cube to have a sphere
-        var vIndex;
-        var verticesSphere = [];
-        var normalsSphere = [];
+        let vIndex;
+        const verticesSphere = [];
+        const normalsSphere = [];
         // generate vertices, normals and uvs
         for (vIndex = 0; vIndex < vertices.length; vIndex += 3) {
             vertex.x = vertices[vIndex];
@@ -91,16 +91,16 @@ class SpherifiedCubeBufferGeometry extends BufferGeometry {
             widthHeightSegments: widthHeightSegments,
         };
         // generate cube
-        var vertex = new Vector3();
-        var vertex2 = new Vector3();
-        var normal = new Vector3();
+        const vertex = new Vector3();
+        const vertex2 = new Vector3();
+        const normal = new Vector3();
         // buffers
-        var indices = [];
-        var vertices = [];
-        var normals = [];
-        var uvs = [];
+        const indices = [];
+        const vertices = [];
+        const normals = [];
+        const uvs = [];
         // we create a normal cube and buffer it in our geometry
-        var cubeBufferGeometry = new BoxBufferGeometry(1, 1, 1, widthHeightSegments, widthHeightSegments, widthHeightSegments);
+        const cubeBufferGeometry = new BoxBufferGeometry(1, 1, 1, widthHeightSegments, widthHeightSegments, widthHeightSegments);
         let positionArray = cubeBufferGeometry.getAttribute("position").array;
         for (let i = 0; i < positionArray.length; ++i) {
             vertices.push(positionArray[i]);
@@ -113,7 +113,7 @@ class SpherifiedCubeBufferGeometry extends BufferGeometry {
         for (let i = 0; i < uvArray.length; ++i) {
             uvs.push(uvArray[i]);
         }
-        // cubeBufferGeometry.index check for TypesScript, it is not supposed to be null 
+        // CubeBufferGeometry shouldn't have a null index attribute. 
         if (cubeBufferGeometry.index === null) {
             throw "cubeBufferGeometry has null index attribute.";
         }
@@ -122,9 +122,9 @@ class SpherifiedCubeBufferGeometry extends BufferGeometry {
             indices.push(indexArray[i]);
         }
         // then normalizing the cube to have a sphere
-        var vIndex;
-        var verticesSphere = [];
-        var normalsSphere = [];
+        let vIndex;
+        const verticesSphere = [];
+        const normalsSphere = [];
         // generate vertices, normals and uvs
         for (vIndex = 0; vIndex < vertices.length; vIndex += 3) {
             vertex.x = vertices[vIndex] * 2.0;
@@ -860,7 +860,7 @@ class ConeFrustum {
     /**
      * @param origin		The origin for the current coordinate space. Can be null.
      *
-     * @returns {Float32Array} 		The cube position vertex coordinates as a flat array
+     * @returns The cube position vertex coordinates as a flat array
      */
     static computeOptimisedDownscalingBoundingCube(center0, radius0, center1, radius1, origin, minScale = 0.5) {
         if (radius0 > radius1)
@@ -962,7 +962,12 @@ class ConeFrustum {
             tmpMat.makeTranslation(tmpVec.x, tmpVec.y, tmpVec.z);
             attribute.applyMatrix4(tmpMat);
         }
-        return attribute.array;
+        if (attribute.array instanceof Float32Array) {
+            return attribute.array;
+        }
+        else {
+            throw new Error("The returned array is expected to be a Float32Array");
+        }
     }
     equals(frustum) {
         return this.base.equals(frustum.base) &&
@@ -1116,8 +1121,8 @@ class Cone {
  */
 Ray.prototype.intersectCone = function () {
     // static variables for the function
-    var E = new Vector3();
-    var target2 = new Vector3();
+    const E = new Vector3();
+    const target2 = new Vector3();
     return function (cone, target) {
         // Set up the quadratic Q(t) = c2*t^2 + 2*c1*t + c0 that corresponds to
         // the cone.  Let the vertex be V, the unit-length direction vector be A,
@@ -1132,21 +1137,21 @@ Ray.prototype.intersectCone = function () {
         // want only intersection points on the single-sided cone that lives in
         // the half-space pointed to by A, any point L(t) generated by a root of
         // Q(t) = 0 must be tested for Dot(A,L(t)-V) >= 0.
-        var cos_angle = cone.cosTheta;
-        var AdD = cone.axis.dot(this.direction);
-        var cos_sqr = cos_angle * cos_angle;
+        const cos_angle = cone.cosTheta;
+        const AdD = cone.axis.dot(this.direction);
+        const cos_sqr = cos_angle * cos_angle;
         E.subVectors(this.origin, cone.v);
-        var AdE = cone.axis.dot(E);
-        var DdE = this.direction.dot(E);
-        var EdE = E.dot(E);
-        var c2 = AdD * AdD - cos_sqr;
-        var c1 = AdD * AdE - cos_sqr * DdE;
-        var c0 = AdE * AdE - cos_sqr * EdE;
-        var dot;
+        const AdE = cone.axis.dot(E);
+        const DdE = this.direction.dot(E);
+        const EdE = E.dot(E);
+        const c2 = AdD * AdD - cos_sqr;
+        const c1 = AdD * AdE - cos_sqr * DdE;
+        const c0 = AdE * AdE - cos_sqr * EdE;
+        let dot;
         // Solve the quadratic.  Keep only those X for which Dot(A,X-V) >= 0.
         if (Math.abs(c2) >= 0) {
             // c2 != 0
-            var discr = c1 * c1 - c0 * c2;
+            const discr = c1 * c1 - c0 * c2;
             if (discr < 0) {
                 // Q(t) = 0 has no real-valued roots.  The line does not
                 // intersect the double-sided cone.
@@ -1157,10 +1162,10 @@ Ray.prototype.intersectCone = function () {
                 // both of them might intersect the portion of the double-sided
                 // cone "behind" the vertex.  We are interested only in those
                 // intersections "in front" of the vertex.
-                var root = Math.sqrt(discr);
-                var invC2 = 1 / c2;
-                var quantity = 0;
-                var t = (-c1 - root) * invC2;
+                const root = Math.sqrt(discr);
+                const invC2 = 1 / c2;
+                let quantity = 0;
+                const t = (-c1 - root) * invC2;
                 if (t > 0) {
                     this.at(t, target);
                     E.subVectors(target, cone.v);
@@ -1169,7 +1174,7 @@ Ray.prototype.intersectCone = function () {
                         quantity++;
                     }
                 }
-                var t2 = (-c1 + root) * invC2;
+                const t2 = (-c1 + root) * invC2;
                 if (t2 > 0 && t2 < t) {
                     this.at(t2, target2);
                     E.subVectors(target2, cone.v);
@@ -1198,7 +1203,7 @@ Ray.prototype.intersectCone = function () {
             }
             else {
                 // One repeated real root (line is tangent to the cone).
-                var t = c1 / c2;
+                const t = c1 / c2;
                 this.at(t, target);
                 E.subVectors(target, cone.v);
                 dot = E.dot(cone.axis);
@@ -1212,7 +1217,7 @@ Ray.prototype.intersectCone = function () {
         }
         else if (Math.abs(c1) >= 0) {
             // c2 = 0, c1 != 0 (D is a direction vector on the cone boundary)
-            var t = 0.5 * c0 / c1;
+            const t = 0.5 * c0 / c1;
             this.at(t, target);
             E.subVectors(target, cone.v);
             dot = E.dot(cone.axis);

@@ -1,4 +1,4 @@
-import { ShaderLib, ShaderMaterial, UniformsUtils } from 'three';
+import { ShaderLib, ShaderMaterial, UniformsUtils, type Texture, type ShaderMaterialParameters } from 'three';
 
 /**
  * @author Maxime Quiblier / http://github.com/maximeq
@@ -6,7 +6,14 @@ import { ShaderLib, ShaderMaterial, UniformsUtils } from 'three';
  */
 class MeshWorldPositionMaterial extends ShaderMaterial {
 
-    constructor(parameters) {
+    displacementMap: Texture | null;
+    displacementScale: number;
+    displacementBias: number;
+    skinning: boolean;
+    isMeshDepthMaterial: boolean;
+    isMeshWorldPositionMaterial: boolean;
+
+    constructor(parameters: ShaderMaterialParameters) {
 
         parameters = parameters || {};
 

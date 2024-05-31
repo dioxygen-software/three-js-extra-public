@@ -148,7 +148,7 @@ class EdgeSplitModifier {
 			}
 
 		}
-
+		// geometry.isGeometry is deprecated
 		if ( geometry.isGeometry === true ) {
 
 			console.error( 'THREE.EdgeSplitModifier no longer supports THREE.Geometry. Use BufferGeometry instead.' );
@@ -196,6 +196,7 @@ class EdgeSplitModifier {
 
 		const splitIndexes: {original: number, indexes: number[]}[] = [];
 
+		// pointToIndexMap is modified by mapPositionsToIndexes
 		for ( const vertexIndexes of pointToIndexMap ) {
 
 			edgeSplit( vertexIndexes, Math.cos( cutOffAngle ) - 0.001 );
@@ -214,7 +215,7 @@ class EdgeSplitModifier {
 		for ( const name of Object.keys( geometry.attributes ) ) {
 
 			const oldAttribute = geometry.attributes[ name ];
-			const newArray = new oldAttribute.array.constructor(new_nb_indices * oldAttribute.itemSize );
+			const newArray = new Float32Array(new_nb_indices * oldAttribute.itemSize );
 			newArray.set( oldAttribute.array );
 			newAttributes[ name ] = new BufferAttribute( newArray, oldAttribute.itemSize, oldAttribute.normalized );
 
@@ -230,11 +231,11 @@ class EdgeSplitModifier {
 			for ( const attribute of Object.values( newAttributes ) ) {
 
 				for ( let j = 0; j < attribute.itemSize; j ++ ) {
-
-					attribute.array[ ( old_nb_indices  + i ) * attribute.itemSize + j ] =
+					const attributeArray = Array.from(attribute.array);
+					attributeArray[ ( old_nb_indices  + i ) * attribute.itemSize + j ] =
 						attribute.array[ index * attribute.itemSize + j ];
-
-				}
+					attribute.array = attributeArray; // This is a hack to update the attribute array
+				}									  // since it is not modifiable as an ArrayLike
 
 			}
 
@@ -270,9 +271,12 @@ class EdgeSplitModifier {
 
 					if ( changedNormals[ i ] === false ) {
 
-						for ( let j = 0; j < 3; j ++ )
-							geometry.attributes.normal.array[ 3 * i + j ] = oldNormals[ 3 * i + j ];
-
+						for ( let j = 0; j < 3; j ++ ) {
+							const attributeArray = Array.from(geometry.attributes.normal.array);
+							attributeArray[ 3 * i + j ] = oldNormals[ 3 * i + j ];
+							// Trick to get around the fact that the array is not modifiable
+							geometry.attributes.normal = new BufferAttribute(attributeArray, geometry.attributes.normal.itemSize, geometry.attributes.normal.normalized);
+						}
 					}
 
 				}

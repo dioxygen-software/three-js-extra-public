@@ -10,6 +10,9 @@ export class Cone {
     cosTheta: number;
 
     /**
+     *  A cone is defined by a singular point v, a direction axis, an angle theta, and two distances inf and sup.
+     *  It is single-sided and does not have a base.
+     * 
      *  @param v The cone origin
      *  @param axis The axis, normalized.
      *  @param theta The cone angle
@@ -78,7 +81,7 @@ export class Cone {
 
 declare module "three" {
     interface Ray {
-        intersectCone(cone: Cone, target: Vector3): Vector3 | null;
+        intersectsCone(cone: Cone, target: Vector3): Vector3 | null;
     }
 }
 
@@ -86,6 +89,9 @@ declare module "three" {
  *
  * Compute intersections of a ray with a cone.
  * For more on this algorithm : http://www.geometrictools.com/Documentation/IntersectionLineCone.pdf
+ * The intersection of a ray and a cone only works if the ray is coming from inside the cone as the cone is single 
+ * sided. Moreover, the cone does not have a base, meaning that a ray that doesn't go through the side of the cone
+ * will not intersect it.
  *
  * @param cone is a truncated cone and must must define :
  *      v the singular point
@@ -94,10 +100,10 @@ declare module "three" {
  *      sup > 0 all points P such that Dot(axis,P-v) > sup are not considered in the cone
  *
  * @param target Where to save the resulting hit point, if any.
- * @return {Vector3} The first hit point if any, null otherwise.
+ * @return The first hit point if any, null otherwise.
  *
  */
-Ray.prototype.intersectCone = function () {
+Ray.prototype.intersectsCone = function () {
     // static variables for the function
     const E = new Vector3();
     const target2 = new Vector3();

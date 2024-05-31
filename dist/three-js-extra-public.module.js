@@ -369,6 +369,12 @@ class MeshWorldNormalMaterial extends ShaderMaterial {
  *
  */
 class MeshWorldPositionMaterial extends ShaderMaterial {
+    displacementMap;
+    displacementScale;
+    displacementBias;
+    skinning;
+    isMeshDepthMaterial;
+    isMeshWorldPositionMaterial;
     constructor(parameters) {
         parameters = parameters || {};
         parameters.uniforms = UniformsUtils.merge([
@@ -493,6 +499,7 @@ class EdgeSplitModifier {
                 edgeSplit(result.splitGroup, cutOff, original || result.currentGroup[0]);
             }
         }
+        // geometry.isGeometry is deprecated
         if (geometry.isGeometry === true) {
             console.error('THREE.EdgeSplitModifier no longer supports THREE.Geometry. Use BufferGeometry instead.');
             return;
@@ -520,6 +527,7 @@ class EdgeSplitModifier {
         computeNormals();
         mapPositionsToIndexes();
         const splitIndexes = [];
+        // pointToIndexMap is modified by mapPositionsToIndexes
         for (const vertexIndexes of pointToIndexMap) {
             edgeSplit(vertexIndexes, Math.cos(cutOffAngle) - 0.001);
         }
@@ -529,7 +537,7 @@ class EdgeSplitModifier {
         const newAttributes = {};
         for (const name of Object.keys(geometry.attributes)) {
             const oldAttribute = geometry.attributes[name];
-            const newArray = new oldAttribute.array.constructor(new_nb_indices * oldAttribute.itemSize);
+            const newArray = new Float32Array(new_nb_indices * oldAttribute.itemSize);
             newArray.set(oldAttribute.array);
             newAttributes[name] = new BufferAttribute(newArray, oldAttribute.itemSize, oldAttribute.normalized);
         }
@@ -540,9 +548,11 @@ class EdgeSplitModifier {
             const index = indexes[split.original];
             for (const attribute of Object.values(newAttributes)) {
                 for (let j = 0; j < attribute.itemSize; j++) {
-                    attribute.array[(old_nb_indices + i) * attribute.itemSize + j] =
+                    const attributeArray = Array.from(attribute.array);
+                    attributeArray[(old_nb_indices + i) * attribute.itemSize + j] =
                         attribute.array[index * attribute.itemSize + j];
-                }
+                    attribute.array = attributeArray; // This is a hack to update the attribute array
+                } // since it is not modifiable as an ArrayLike
             }
             for (const j of split.indexes) {
                 newIndexes[j] = old_nb_indices + i;
@@ -561,8 +571,12 @@ class EdgeSplitModifier {
                     changedNormals[splitData.original] = true;
                 for (let i = 0; i < changedNormals.length; i++) {
                     if (changedNormals[i] === false) {
-                        for (let j = 0; j < 3; j++)
-                            geometry.attributes.normal.array[3 * i + j] = oldNormals[3 * i + j];
+                        for (let j = 0; j < 3; j++) {
+                            const attributeArray = Array.from(geometry.attributes.normal.array);
+                            attributeArray[3 * i + j] = oldNormals[3 * i + j];
+                            // Trick to get around the fact that the array is not modifiable
+                            geometry.attributes.normal = new BufferAttribute(attributeArray, geometry.attributes.normal.itemSize, geometry.attributes.normal.normalized);
+                        }
                     }
                 }
             }
@@ -877,6 +891,9 @@ class Cone {
     sup;
     cosTheta;
     /**
+     *  A cone is defined by a singular point v, a direction axis, an angle theta, and two distances inf and sup.
+     *  It is single-sided and does not have a base.
+     *
      *  @param v The cone origin
      *  @param axis The axis, normalized.
      *  @param theta The cone angle
@@ -926,6 +943,9 @@ class Cone {
  *
  * Compute intersections of a ray with a cone.
  * For more on this algorithm : http://www.geometrictools.com/Documentation/IntersectionLineCone.pdf
+ * The intersection of a ray and a cone only works if the ray is coming from inside the cone as the cone is single
+ * sided. Moreover, the cone does not have a base, meaning that a ray that doesn't go through the side of the cone
+ * will not intersect it.
  *
  * @param cone is a truncated cone and must must define :
  *      v the singular point

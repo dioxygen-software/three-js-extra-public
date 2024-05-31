@@ -118,7 +118,13 @@ declare class MeshWorldNormalMaterial extends ShaderMaterial {
  *
  */
 declare class MeshWorldPositionMaterial extends ShaderMaterial {
-    constructor(parameters: any);
+    displacementMap: Texture | null;
+    displacementScale: number;
+    displacementBias: number;
+    skinning: boolean;
+    isMeshDepthMaterial: boolean;
+    isMeshWorldPositionMaterial: boolean;
+    constructor(parameters: ShaderMaterialParameters);
 }
 //# sourceMappingURL=MeshWorldPositionMaterial.d.ts.map
 
@@ -178,6 +184,9 @@ declare class Cone {
     sup: number;
     cosTheta: number;
     /**
+     *  A cone is defined by a singular point v, a direction axis, an angle theta, and two distances inf and sup.
+     *  It is single-sided and does not have a base.
+     *
      *  @param v The cone origin
      *  @param axis The axis, normalized.
      *  @param theta The cone angle

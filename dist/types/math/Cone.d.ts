@@ -7,6 +7,9 @@ export declare class Cone {
     sup: number;
     cosTheta: number;
     /**
+     *  A cone is defined by a singular point v, a direction axis, an angle theta, and two distances inf and sup.
+     *  It is single-sided and does not have a base.
+     *
      *  @param v The cone origin
      *  @param axis The axis, normalized.
      *  @param theta The cone angle

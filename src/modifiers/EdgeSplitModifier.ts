@@ -231,11 +231,9 @@ class EdgeSplitModifier {
 			for ( const attribute of Object.values( newAttributes ) ) {
 
 				for ( let j = 0; j < attribute.itemSize; j ++ ) {
-					const attributeArray = Array.from(attribute.array);
-					attributeArray[ ( old_nb_indices  + i ) * attribute.itemSize + j ] =
+					(attribute.array as Float32Array)[ ( old_nb_indices  + i ) * attribute.itemSize + j ] =
 						attribute.array[ index * attribute.itemSize + j ];
-					attribute.array = attributeArray; // This is a hack to update the attribute array
-				}									  // since it is not modifiable as an ArrayLike
+				}
 
 			}
 
@@ -272,10 +270,7 @@ class EdgeSplitModifier {
 					if ( changedNormals[ i ] === false ) {
 
 						for ( let j = 0; j < 3; j ++ ) {
-							const attributeArray = Array.from(geometry.attributes.normal.array);
-							attributeArray[ 3 * i + j ] = oldNormals[ 3 * i + j ];
-							// Trick to get around the fact that the array is not modifiable
-							geometry.attributes.normal = new BufferAttribute(attributeArray, geometry.attributes.normal.itemSize, geometry.attributes.normal.normalized);
+							(geometry.attributes.normal.array as Float32Array)[ 3 * i + j ] = oldNormals[ 3 * i + j ];
 						}
 					}
 

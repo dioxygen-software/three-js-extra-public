@@ -311,11 +311,9 @@ export class ConeFrustum {
 
         }
 
-        if (attribute.array instanceof Float32Array) {
-            return attribute.array;
-         } else {
-           throw new Error("The returned array is expected to be a Float32Array");
-         }
+        if (!(attribute.array instanceof Float32Array))
+            throw new Error("The returned array is expected to be a Float32Array");
+        return attribute.array;
     }
 
 

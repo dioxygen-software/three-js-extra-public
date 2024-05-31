@@ -355,8 +355,7 @@ class MeshWorldNormalMaterial extends ShaderMaterial {
         const oldOnBeforeRender = mesh.onBeforeRender;
         mesh.onBeforeRender = function (renderer, scene, camera, geometry, material, group) {
             oldOnBeforeRender.call(this, renderer, scene, camera, geometry, material, group);
-            const new_mat = this.material;
-            if (!(new_mat instanceof MeshWorldNormalMaterial))
+            if (!(this.material instanceof MeshWorldNormalMaterial))
                 throw "MeshWorldNormalMaterial.updateMeshOnBeforeRender: mesh material is not a MeshWorldNormalMaterial";
             if (this.material.isMeshWorldNormalMaterial)
                 this.material.uniforms.viewMatrixInverse.value.copy(camera.matrixWorld);
@@ -548,11 +547,9 @@ class EdgeSplitModifier {
             const index = indexes[split.original];
             for (const attribute of Object.values(newAttributes)) {
                 for (let j = 0; j < attribute.itemSize; j++) {
-                    const attributeArray = Array.from(attribute.array);
-                    attributeArray[(old_nb_indices + i) * attribute.itemSize + j] =
+                    attribute.array[(old_nb_indices + i) * attribute.itemSize + j] =
                         attribute.array[index * attribute.itemSize + j];
-                    attribute.array = attributeArray; // This is a hack to update the attribute array
-                } // since it is not modifiable as an ArrayLike
+                }
             }
             for (const j of split.indexes) {
                 newIndexes[j] = old_nb_indices + i;
@@ -572,10 +569,7 @@ class EdgeSplitModifier {
                 for (let i = 0; i < changedNormals.length; i++) {
                     if (changedNormals[i] === false) {
                         for (let j = 0; j < 3; j++) {
-                            const attributeArray = Array.from(geometry.attributes.normal.array);
-                            attributeArray[3 * i + j] = oldNormals[3 * i + j];
-                            // Trick to get around the fact that the array is not modifiable
-                            geometry.attributes.normal = new BufferAttribute(attributeArray, geometry.attributes.normal.itemSize, geometry.attributes.normal.normalized);
+                            geometry.attributes.normal.array[3 * i + j] = oldNormals[3 * i + j];
                         }
                     }
                 }
@@ -794,12 +788,9 @@ class ConeFrustum {
             tmpMat.makeTranslation(tmpVec.x, tmpVec.y, tmpVec.z);
             attribute.applyMatrix4(tmpMat);
         }
-        if (attribute.array instanceof Float32Array) {
-            return attribute.array;
-        }
-        else {
+        if (!(attribute.array instanceof Float32Array))
             throw new Error("The returned array is expected to be a Float32Array");
-        }
+        return attribute.array;
     }
     equals(frustum) {
         return this.base.equals(frustum.base) &&
@@ -954,10 +945,10 @@ class Cone {
  *      sup > 0 all points P such that Dot(axis,P-v) > sup are not considered in the cone
  *
  * @param target Where to save the resulting hit point, if any.
- * @return {Vector3} The first hit point if any, null otherwise.
+ * @return The first hit point if any, null otherwise.
  *
  */
-Ray.prototype.intersectCone = function () {
+Ray.prototype.intersectsCone = function () {
     // static variables for the function
     const E = new Vector3();
     const target2 = new Vector3();

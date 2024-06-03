@@ -500,8 +500,10 @@
         {
             "imports": {
                 "three": "../node_modules/three/build/three.module.js",
+                "three/" : "../node_modules/three/",
                 "@dioxygen-software/three-js-extra-public": "../dist/three-js-extra-public.module.js",
-                "three/examples/jsm/utils/BufferGeometryUtils.js": "../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js"
+                "three/examples/jsm/utils/BufferGeometryUtils.js": "../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js",
+                "dat.gui": "../node_modules/dat.gui/build/dat.gui.module.js"
             }
         }
     </script>
@@ -510,12 +512,12 @@
 
         import * as THREE from 'three';
 
-        import { OrbitControls } from './js/OrbitControls.js';
-        import { OBJLoader } from './js/OBJLoader.js';
+        import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+        import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
         import { EdgeSplitModifier } from '@dioxygen-software/three-js-extra-public';
-        import * as BufferGeometryUtils from './js/BufferGeometryUtils.js';
+        import { BufferGeometryUtils } from '../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js';
 
-        import { GUI } from './js/lil-gui.module.min.js';
+        import { GUI } from 'dat.gui';
 
         let renderer, scene, camera;
         let modifier, mesh, baseGeometry;

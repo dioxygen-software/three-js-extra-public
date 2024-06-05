@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>three.js webgl - modifier - Edge Split modifier</title>
+    <title>Edge Split modifier - Testing</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 </head>
@@ -44,14 +44,6 @@
         init();
 
         function init() {
-
-            const info = document.createElement('div');
-            info.style.position = 'absolute';
-            info.style.top = '10px';
-            info.style.width = '100%';
-            info.style.textAlign = 'center';
-            info.innerHTML = '<a href="https://threejs.org" target="_blank" rel="noopener">Taken from three.js</a> - Edge Split modifier';
-            document.body.appendChild(info);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setPixelRatio(window.devicePixelRatio);
@@ -196,28 +188,7 @@
 
 <style>
     body {
-        color: #000;
-        font-family: Monospace, sans-serif;
-        font-size: 13px;
-        text-align: center;
-        font-weight: bold;
-
-        background-color: #fff;
         margin: 0;
-        overflow: hidden;
-    }
-
-    #info {
-        color: #000;
-        position: absolute;
-        top: 0;
-        width: 100%;
-        padding: 5px;
-
-    }
-
-    a {
-        color: red;
     }
 </style>
 </body>

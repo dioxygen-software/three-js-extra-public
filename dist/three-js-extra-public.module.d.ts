@@ -129,7 +129,7 @@ declare class MeshWorldPositionMaterial extends ShaderMaterial {
 //# sourceMappingURL=MeshWorldPositionMaterial.d.ts.map
 
 declare class EdgeSplitModifier {
-    modify(geometry: BufferGeometry, cutOffAngle: number, tryKeepNormals?: boolean): BufferGeometry | undefined;
+    modify(geometry: BufferGeometry, cutOffAngle: number, tryKeepNormals?: boolean): BufferGeometry;
 }
 //# sourceMappingURL=EdgeSplitModifier.d.ts.map
 
@@ -198,7 +198,7 @@ declare class Cone {
     clone(): Cone;
     copy(cone: Cone): Cone;
     empty(): boolean;
-    getBoundingBox(target: Vector3): void;
+    getBoundingBox(_: Vector3): void;
     equals(cone: Cone): boolean;
 }
 declare module "three" {

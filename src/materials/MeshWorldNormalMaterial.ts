@@ -13,8 +13,8 @@ import {
     type Scene,
     type Camera,
     type BufferGeometry,
-    Material,
-    Group
+    type Material,
+    type Group
 } from 'three';
 
 

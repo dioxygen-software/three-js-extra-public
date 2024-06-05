@@ -148,13 +148,6 @@ class EdgeSplitModifier {
 			}
 
 		}
-		// geometry.isGeometry is deprecated
-		if ( geometry.isGeometry === true ) {
-
-			console.error( 'THREE.EdgeSplitModifier no longer supports THREE.Geometry. Use BufferGeometry instead.' );
-			return;
-
-		}
 
 		let hadNormals = false;
 		let oldNormals = null;
@@ -189,14 +182,13 @@ class EdgeSplitModifier {
 		const positions = geometry.getAttribute( 'position' ).array;
 
 		let normals: Float32Array;
-		let pointToIndexMap: number[][];
+		let pointToIndexMap: number[][] = [];
 
 		computeNormals();
 		mapPositionsToIndexes();
 
 		const splitIndexes: {original: number, indexes: number[]}[] = [];
 
-		// pointToIndexMap is modified by mapPositionsToIndexes
 		for ( const vertexIndexes of pointToIndexMap ) {
 
 			edgeSplit( vertexIndexes, Math.cos( cutOffAngle ) - 0.001 );

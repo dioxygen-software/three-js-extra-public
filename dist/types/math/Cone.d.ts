@@ -21,7 +21,7 @@ export declare class Cone {
     clone(): Cone;
     copy(cone: Cone): Cone;
     empty(): boolean;
-    getBoundingBox(target: Vector3): void;
+    getBoundingBox(_: Vector3): void;
     equals(cone: Cone): boolean;
 }
 declare module "three" {

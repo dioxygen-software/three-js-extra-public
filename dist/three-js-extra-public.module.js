@@ -498,11 +498,6 @@ class EdgeSplitModifier {
                 edgeSplit(result.splitGroup, cutOff, original || result.currentGroup[0]);
             }
         }
-        // geometry.isGeometry is deprecated
-        if (geometry.isGeometry === true) {
-            console.error('THREE.EdgeSplitModifier no longer supports THREE.Geometry. Use BufferGeometry instead.');
-            return;
-        }
         let hadNormals = false;
         let oldNormals = null;
         if (geometry.attributes.normal) {
@@ -522,11 +517,10 @@ class EdgeSplitModifier {
         const indexes = geometry.index.array;
         const positions = geometry.getAttribute('position').array;
         let normals;
-        let pointToIndexMap;
+        let pointToIndexMap = [];
         computeNormals();
         mapPositionsToIndexes();
         const splitIndexes = [];
-        // pointToIndexMap is modified by mapPositionsToIndexes
         for (const vertexIndexes of pointToIndexMap) {
             edgeSplit(vertexIndexes, Math.cos(cutOffAngle) - 0.001);
         }
@@ -923,7 +917,7 @@ class Cone {
     empty() {
         return (this.theta <= 0 || this.inf >= this.sup);
     }
-    getBoundingBox(target) {
+    getBoundingBox(_) {
         throw "not implemented yet, todo";
     }
     equals(cone) {

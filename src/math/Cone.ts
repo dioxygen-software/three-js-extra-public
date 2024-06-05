@@ -68,7 +68,7 @@ export class Cone {
 
     }
 
-    getBoundingBox(target: Vector3) {
+    getBoundingBox(_: Vector3) {
         throw "not implemented yet, todo";
     }
 

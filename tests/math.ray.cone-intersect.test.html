@@ -22,7 +22,7 @@
         import {
             WebGLRenderer, Scene, PerspectiveCamera, BufferGeometry, Mesh, BoxBufferGeometry, MeshStandardMaterial,
             DoubleSide, CylinderBufferGeometry, MeshLambertMaterial, HemisphereLight, AxesHelper, GridHelper, Vector3,
-            BufferAttribute, Ray, Line, LineBasicMaterial
+            BufferAttribute, Ray, Line, LineBasicMaterial, Color
         } from "three"
         import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
         import { Cone } from "@dioxygen-software/three-js-extra-public"
@@ -66,12 +66,6 @@
             Axes: true,
         }
 
-        let geom = new BufferGeometry();
-
-        let mesh = new Mesh(new BoxBufferGeometry(), new MeshStandardMaterial({ color: 0xffaa00 }))
-        mesh.material.side = DoubleSide
-        scene.add(mesh);
-
         let helperMesh = new Mesh(new CylinderBufferGeometry(0.5, 0.5, 1), new MeshLambertMaterial({ color: 0xff0000 }))
         helperMesh.material.wireframe = true;
         helperMesh.material.depthTest = false;
@@ -85,10 +79,10 @@
         scene.add(axes);
 
         let grid = new GridHelper(40);
-        // scene.add(grid);
+        scene.add(grid);
 
         let points = [new Vector3(), new Vector3(100, 100, 100)]
-        let line = new Line(new BufferGeometry().setFromPoints(points), new LineBasicMaterial({ color: 0x0000ff }));
+        let line = new Line(new BufferGeometry().setFromPoints(points), new LineBasicMaterial({ color: 0xff000 }));
         scene.add(line);
 
         updateScreen()
@@ -106,10 +100,6 @@
 
 
         function updateGeom() {
-            let geom = new BufferGeometry();
-
-            mesh.geometry = geom;
-            mesh.needsUpdate = true;
 
             updateHelperMesh(helperMesh);
             updateLine(line);
@@ -129,11 +119,14 @@
 
             let target = new Vector3();
             const ray = new Ray(new Vector3(params.Ray_O_x, params.Ray_O_y, params.Ray_O_z), new Vector3(params.Ray_D_x, params.Ray_D_y, params.Ray_D_z).normalize());
-            target = ray.intersectCone(cone, target);
+            target = ray.intersectsCone(cone, target);
             if (target == null) {
-                console.log("No intersection");
+                line.material.color = new Color(0xffa500);
+                line.material.needsUpdate = true;
             } else {
                 console.log("Intersection at", target);
+                line.color = new Color(0x00ff00);
+                line.needsUpdate = true;
             }
 
             helperMesh.geometry = new CylinderBufferGeometry(Math.tan(cone.theta) * cone.sup, Math.tan(cone.theta) * cone.inf, (cone.sup - cone.inf));
@@ -166,15 +159,17 @@
             const cone = new Cone(v2, axis, params.Angle, params.Inf, params.Sup);
 
             const ray = new Ray(new Vector3(params.Ray_O_x, params.Ray_O_y, params.Ray_O_z), new Vector3(params.Ray_D_x, params.Ray_D_y, params.Ray_D_z).normalize());
-            const points = [ray.origin, ray.direction.clone().multiplyScalar(100)];
+            const points = [ray.origin, ray.origin.clone().add(ray.direction.clone().multiplyScalar(100))];
             line.geometry = new BufferGeometry().setFromPoints(points);
 
             let target = new Vector3();
-            target = ray.intersectCone(cone, target);
+            target = ray.intersectsCone(cone, target);
             if (target == null) {
-                console.log("No intersection");
+                line.material.color = new Color(0xffa500);
+                line.material.needsUpdate = true;
             } else {
-                console.log("Intersection at", target);
+                line.material.color = new Color(0x00ff00);
+                line.material.needsUpdate = true;
             }
 
             line.needsUpdate = true;

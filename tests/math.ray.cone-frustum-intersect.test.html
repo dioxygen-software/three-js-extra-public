@@ -22,7 +22,7 @@
         import {
             WebGLRenderer, Scene, PerspectiveCamera, BufferGeometry, Mesh, BoxBufferGeometry, MeshStandardMaterial,
             DoubleSide, CylinderBufferGeometry, MeshLambertMaterial, HemisphereLight, AxesHelper, GridHelper, Vector3,
-            BufferAttribute, Ray, Line, LineBasicMaterial
+            BufferAttribute, Ray, Line, LineBasicMaterial, Color
         } from "three"
         import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
         import { ConeFrustum } from "@dioxygen-software/three-js-extra-public"
@@ -66,12 +66,6 @@
             Axes: true,
         }
 
-        let geom = new BufferGeometry();
-
-        let mesh = new Mesh(new BoxBufferGeometry(), new MeshStandardMaterial({ color: 0xffaa00 }))
-        mesh.material.side = DoubleSide
-        scene.add(mesh);
-
         let helperMesh = new Mesh(new CylinderBufferGeometry(0.5, 0.5, 1), new MeshLambertMaterial({ color: 0xff0000 }))
         helperMesh.material.wireframe = true;
         helperMesh.material.depthTest = false;
@@ -112,10 +106,6 @@
 
 
         function updateGeom() {
-            let geom = new BufferGeometry();
-
-            mesh.geometry = geom;
-            mesh.needsUpdate = true;
 
             updateHelperMesh(helperMesh);
             updateHelperMesh(downscaledHelperMesh, params.Scale);
@@ -123,7 +113,7 @@
             downscaledHelperMesh.visible = params.Scale < 1;
 
             render();
-        }
+        } 
 
 
         function updateHelperMesh(helperMesh, scale) {
@@ -138,9 +128,11 @@
             const ray = new Ray(new Vector3(params.Ray_O_x, params.Ray_O_y, params.Ray_O_z), new Vector3(params.Ray_D_x, params.Ray_D_y, params.Ray_D_z).normalize());
             target = ray.intersectsConeFrustum(coneFrustum, target);
             if (target == null) {
-                console.log("No intersection");
+                line.material.color = new Color(0xffa500);
+                line.material.needsUpdate = true;
             } else {
-                console.log("Intersection at", target);
+                line.material.color = new Color(0x00ff00);
+                line.material.needsUpdate = true;
             }
 
             helperMesh.geometry = new CylinderBufferGeometry(coneFrustum.radius1, coneFrustum.radius0, coneFrustum.height);
@@ -161,17 +153,23 @@
         }
 
         function updateLine(line) {
-            const coneFrustum = ConeFrustum.fromCapsule(c0, params.R0 * scale, c1, params.R1 * scale);
+            let c0 = new Vector3(params.C0_X, params.C0_Y, params.C0_Z);
+            let c1 = new Vector3(params.C1_X, params.C1_Y, params.C1_Z);
+
+            const coneFrustum = ConeFrustum.fromCapsule(c0, params.R0 * params.Scale, c1, params.R1 * params.Scale);
 
             const ray = new Ray(new Vector3(params.Ray_O_x, params.Ray_O_y, params.Ray_O_z), new Vector3(params.Ray_D_x, params.Ray_D_y, params.Ray_D_z).normalize());
             const points = [ray.origin, ray.direction.clone().multiplyScalar(100)];
             line.geometry = new BufferGeometry().setFromPoints(points);
-
+            
+            let target = new Vector3();
             target = ray.intersectsConeFrustum(coneFrustum, target);
             if (target == null) {
-                console.log("No intersection");
+                line.material.color = new Color(0xffa500);
+                line.material.needsUpdate = true;
             } else {
-                console.log("Intersection at", target);
+                line.material.color = new Color(0x00ff00);
+                line.material.needsUpdate = true;
             }
 
             line.needsUpdate = true;

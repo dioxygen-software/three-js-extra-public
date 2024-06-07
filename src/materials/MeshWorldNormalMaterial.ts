@@ -2,9 +2,19 @@ import {
     Matrix4,
     ShaderLib,
     ShaderMaterial,
+    type ShaderMaterialParameters,
     TangentSpaceNormalMap,
     UniformsUtils,
-    Vector2
+    Vector2,
+    type Mesh,
+    type Texture,
+    type NormalMapTypes,
+    type WebGLRenderer,
+    type Scene,
+    type Camera,
+    type BufferGeometry,
+    type Material,
+    type Group
 } from 'three';
 
 
@@ -20,7 +30,19 @@ import {
      */
 class MeshWorldNormalMaterial extends ShaderMaterial {
 
-    constructor(parameters) {
+    bumpMap: Texture | null;
+    bumpScale: number;
+    normalMap: Texture | null;
+    normalMapType: NormalMapTypes;
+    normalScale: Vector2;
+    displacementMap: Texture | null;
+    displacementScale: number;
+    displacementBias: number;
+    skinning: boolean;
+    isMeshNormalMaterial: boolean;
+    isMeshWorldNormalMaterial: boolean;
+
+    constructor(parameters: ShaderMaterialParameters) {
 
         parameters = parameters || {};
 
@@ -71,15 +93,21 @@ class MeshWorldNormalMaterial extends ShaderMaterial {
      *  Call it only once on each mesh or it may impact performances.
      *  Note that previously set onBeforeRender will be preserved.
      */
-    updateMeshOnBeforeRender = function (mesh) {
+    updateMeshOnBeforeRender = function (mesh: Mesh) {
 
         const oldOnBeforeRender = mesh.onBeforeRender;
-        mesh.onBeforeRender = function (renderer, scene, camera, geometry, material, group) {
+        mesh.onBeforeRender = function (renderer: WebGLRenderer,
+                                        scene: Scene,
+                                        camera: Camera,
+                                        geometry: BufferGeometry,
+                                        material: Material,
+                                        group: Group) {
 
             oldOnBeforeRender.call(this, renderer, scene, camera, geometry, material, group);
-
-            if (this.material.isMeshWorldNormalMaterial)
-                this.material.uniforms.viewMatrixInverse.value.copy(camera.matrixWorld);
+            if (!(this.material instanceof MeshWorldNormalMaterial))
+                throw "MeshWorldNormalMaterial.updateMeshOnBeforeRender: mesh material is not a MeshWorldNormalMaterial";
+            if ((this.material as MeshWorldNormalMaterial).isMeshWorldNormalMaterial)
+                (this.material as MeshWorldNormalMaterial).uniforms.viewMatrixInverse.value.copy(camera.matrixWorld);
 
         };
     }

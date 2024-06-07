@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ConeFrustum - Optimised bounding cube</title>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "../node_modules/three/build/three.module.js",
+                "three/": "../node_modules/three/",
+                "@dioxygen-software/three-js-extra-public": "../dist/three-js-extra-public.module.js",
+                "dat.gui": "../node_modules/dat.gui/build/dat.gui.module.js"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <script type="module">
+        import {
+            WebGLRenderer, Scene, PerspectiveCamera, BufferGeometry, Mesh, BoxBufferGeometry, MeshStandardMaterial,
+            DoubleSide, CylinderBufferGeometry, MeshLambertMaterial, HemisphereLight, AxesHelper, GridHelper, Vector3,
+            BufferAttribute, Ray, Line, LineBasicMaterial, Color
+        } from "three"
+        import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
+        import { Cone } from "@dioxygen-software/three-js-extra-public"
+        import * as dat from "dat.gui"
+
+        let renderer = new WebGLRenderer()
+        document.body.appendChild(renderer.domElement)
+        renderer.setClearColor('#ffffff')
+        renderer.setClearAlpha(1)
+
+        let scene = new Scene();
+
+        let camera = new PerspectiveCamera(75);
+        camera.position.setZ(40)
+
+        let controls = new OrbitControls(camera, renderer.domElement)
+        controls.addEventListener('change', render);
+        controls.enableDamping = true; // An animation loop is required when either damping or auto-rotation are enabled
+        controls.dampingFactor = 0.1;
+        controls.minDistance = 10;
+        controls.maxDistance = 1000;
+        controls.keys = { UP: 0, DOWN: 0, LEFT: 0, RIGHT: 0 };
+
+        let params = {
+            V_X: 0,
+            V_Y: 0,
+            V_Z: 0,
+            Angle: Math.PI / 4,
+            A_X: 0,
+            A_Y: 10,
+            A_Z: 0,
+            Inf: 0,
+            Sup: 10,
+            Ray_O_x: 0,
+            Ray_O_y: 0,
+            Ray_O_z: 0,
+            Ray_D_x: 0,
+            Ray_D_y: 1,
+            Ray_D_z: 0,
+            Grid: true,
+            Axes: true,
+        }
+
+        let helperMesh = new Mesh(new CylinderBufferGeometry(0.5, 0.5, 1), new MeshLambertMaterial({ color: 0xff0000 }))
+        helperMesh.material.wireframe = true;
+        helperMesh.material.depthTest = false;
+        helperMesh.material.depthWrite = false;
+        scene.add(helperMesh);
+
+        let light = new HemisphereLight(0xffffff, 0xaaaaaa, 2.0);
+        scene.add(light);
+
+        let axes = new AxesHelper(20);
+        scene.add(axes);
+
+        let grid = new GridHelper(40);
+        scene.add(grid);
+
+        let points = [new Vector3(), new Vector3(100, 100, 100)]
+        let line = new Line(new BufferGeometry().setFromPoints(points), new LineBasicMaterial({ color: 0xff000 }));
+        scene.add(line);
+
+        updateScreen()
+        window.onresize = updateScreen;
+        updateGeom();
+
+
+        function updateScreen() {
+            renderer.setSize(window.innerWidth, window.innerHeight)
+            camera.aspect = window.innerWidth / window.innerHeight
+            camera.updateProjectionMatrix()
+
+            render()
+        }
+
+
+        function updateGeom() {
+
+            updateHelperMesh(helperMesh);
+            updateLine(line);
+
+            render();
+        }
+
+
+        function updateHelperMesh(helperMesh, scale) {
+            scale = scale == null ? 1 : scale;
+
+            let v = new Vector3();
+
+            const v2 = new Vector3(params.V_X, params.V_Y, params.V_Z);
+            const axis = new Vector3(params.A_X, params.A_Y, params.A_Z).normalize();
+            const cone = new Cone(v2, axis, params.Angle, params.Inf, params.Sup);
+
+            let target = new Vector3();
+            const ray = new Ray(new Vector3(params.Ray_O_x, params.Ray_O_y, params.Ray_O_z), new Vector3(params.Ray_D_x, params.Ray_D_y, params.Ray_D_z).normalize());
+            target = ray.intersectsCone(cone, target);
+            if (target == null) {
+                line.material.color = new Color(0xffa500);
+                line.material.needsUpdate = true;
+            } else {
+                console.log("Intersection at", target);
+                line.color = new Color(0x00ff00);
+                line.needsUpdate = true;
+            }
+
+            helperMesh.geometry = new CylinderBufferGeometry(Math.tan(cone.theta) * cone.sup, Math.tan(cone.theta) * cone.inf, (cone.sup - cone.inf));
+            // helperMesh.geometry = new CylinderBufferGeometry(5, 0, 10);
+            // const offset = new Vector3(0,5,0);
+
+            const correction = (new Vector3()).copy(cone.axis).multiplyScalar(cone.inf / 2);
+            const offset = (new Vector3()).copy(cone.axis).multiplyScalar(cone.sup / 2);
+            offset.add(correction);
+            const new_pos = (new Vector3()).copy(cone.v).add(offset);
+            helperMesh.position.copy(new_pos);
+
+            helperMesh.rotation.set(0, 0, 0);
+            v.set(0, 1, 0);
+            const angle = v.angleTo(cone.axis);
+            const d = v.dot(cone.axis);
+            v.cross(cone.axis).normalize();
+            if (v.length() > 0)
+                helperMesh.rotateOnWorldAxis(v, angle);
+            else
+                helperMesh.rotateZ((d < 0 ? Math.PI : 0));
+
+
+            helperMesh.needsUpdate = true
+        }
+
+        function updateLine(line) {
+            const v2 = new Vector3(params.V_X, params.V_Y, params.V_Z);
+            const axis = new Vector3(params.A_X, params.A_Y, params.A_Z).normalize();
+            const cone = new Cone(v2, axis, params.Angle, params.Inf, params.Sup);
+
+            const ray = new Ray(new Vector3(params.Ray_O_x, params.Ray_O_y, params.Ray_O_z), new Vector3(params.Ray_D_x, params.Ray_D_y, params.Ray_D_z).normalize());
+            const points = [ray.origin, ray.origin.clone().add(ray.direction.clone().multiplyScalar(100))];
+            line.geometry = new BufferGeometry().setFromPoints(points);
+
+            let target = new Vector3();
+            target = ray.intersectsCone(cone, target);
+            if (target == null) {
+                line.material.color = new Color(0xffa500);
+                line.material.needsUpdate = true;
+            } else {
+                line.material.color = new Color(0x00ff00);
+                line.material.needsUpdate = true;
+            }
+
+            line.needsUpdate = true;
+        }
+
+        function render() {
+            renderer.render(scene, camera)
+        }
+
+
+        let gui = new dat.GUI();
+
+        gui.add(params, "V_X", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "V_Y", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "V_Z", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "Angle", 0, Math.PI / 2 - 0.1, 0.1).onChange(updateGeom)
+        gui.add(params, "A_X", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "A_Y", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "A_Z", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "Sup", 0, 10, 0.2).onChange(updateGeom)
+        gui.add(params, "Inf", 0, 10, 0.2).onChange(updateGeom)
+
+        gui.add(params, "Ray_O_x", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "Ray_O_y", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "Ray_O_z", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "Ray_D_x", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "Ray_D_y", -20, 20, 0.5).onChange(updateGeom)
+        gui.add(params, "Ray_D_z", -20, 20, 0.5).onChange(updateGeom)
+
+
+        gui.add(params, "Grid").onChange(() => {
+            grid.visible = params.Grid
+            render();
+        })
+
+        gui.add(params, "Axes").onChange(() => {
+            axes.visible = params.Axes;
+            render()
+        })
+    </script>
+
+</body>
+
+<style>
+    body {
+        color: #000;
+        font-family: Monospace, sans-serif;
+        font-size: 13px;
+        text-align: center;
+        font-weight: bold;
+
+        background-color: #fff;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    #info {
+        color: #000;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        padding: 5px;
+
+    }
+
+    a {
+        color: red;
+    }
+</style>
+
+</html>

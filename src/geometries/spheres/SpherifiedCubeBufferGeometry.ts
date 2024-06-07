@@ -1,7 +1,13 @@
 import { BufferGeometry, Vector3, BoxBufferGeometry, Float32BufferAttribute } from "three"
 
 export class SpherifiedCubeBufferGeometry extends BufferGeometry {
-    constructor(radius, widthHeightSegments) {
+
+    parameters: {
+        radius: number;
+        widthHeightSegments: number;
+    }
+
+    constructor(radius: number, widthHeightSegments: number) {
         super();
 
         this.type = "SpherifiedCubeBufferGeometry";
@@ -15,31 +21,22 @@ export class SpherifiedCubeBufferGeometry extends BufferGeometry {
             widthHeightSegments: widthHeightSegments,
         };
 
-        var scope = this;
-
         // generate cube
-        var ix, iy;
-        var depth = 1;
-        var height = 1;
-        var width = 1;
 
-        var vertex = new Vector3();
-        var vertex2 = new Vector3();
-        var normal = new Vector3();
-
-        var numberOfVertices = 0;
-        var groupStart = 0;
+        const vertex = new Vector3();
+        const vertex2 = new Vector3();
+        const normal = new Vector3();
 
         // buffers
 
-        var indices = [];
-        var vertices = [];
-        var normals = [];
-        var uvs = [];
+        const indices = [];
+        const vertices = [];
+        const normals = [];
+        const uvs = [];
 
         // we create a normal cube and buffer it in our geometry
 
-        var cubeBufferGeometry = new BoxBufferGeometry(
+        const cubeBufferGeometry = new BoxBufferGeometry(
             1,
             1,
             1,
@@ -63,6 +60,11 @@ export class SpherifiedCubeBufferGeometry extends BufferGeometry {
             uvs.push(uvArray[i]);
         }
 
+        // CubeBufferGeometry shouldn't have a null index attribute. 
+        if (cubeBufferGeometry.index === null) {
+            throw "cubeBufferGeometry has null index attribute."
+        }
+
         let indexArray = cubeBufferGeometry.index.array;
         for (let i = 0; i < indexArray.length; ++i) {
             indices.push(indexArray[i]);
@@ -70,10 +72,10 @@ export class SpherifiedCubeBufferGeometry extends BufferGeometry {
 
         // then normalizing the cube to have a sphere
 
-        var vIndex;
+        let vIndex;
 
-        var verticesSphere = [];
-        var normalsSphere = [];
+        const verticesSphere = [];
+        const normalsSphere = [];
 
         // generate vertices, normals and uvs
 

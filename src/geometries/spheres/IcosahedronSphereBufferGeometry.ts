@@ -5,11 +5,10 @@ import { IcosahedronBufferGeometry } from "three"
  */
 
 export class IcosahedronSphereBufferGeometry extends IcosahedronBufferGeometry {
-    constructor(radius, subdivisionsLevel) {
+    constructor(radius: number, subdivisionsLevel: number) {
         super(radius, subdivisionsLevel);
 
         this.type = "IcosahedronSphereBufferGeometry";
 
-        var scope = this;
     }
 }

@@ -1,24 +1,24 @@
-import { ShaderLib, ShaderMaterial, UniformsUtils } from 'three';
+import { ShaderLib, ShaderMaterial, UniformsUtils, type Texture, type ShaderMaterialParameters } from 'three';
 
 /**
-     * @author Maxime Quiblier / http://github.com/maximeq
-     *
-     * @param {boolean} useFloatTexture If true, we consider floatTexture extension is activated and available.
-     *                                  The resulting coordinates will be stored in RGB components.
-     *                                  If false (default), the coordinate to store must be defined by parameters.coordinate
-     *                                  and will be packed in RGBA.
-     * @param {string} coordinate x, y or z to choose which coordinate will be packed in RGBA using THREE.JS packDepthToRGBA. Values will be mapped from -1:1 to 0:0.5 since
-     *                            depth packing does only provide methods to store in [0,1[ To recover the view coordinate, you need to do
-     *                            x = 4*unpackRGBAToDepth(rgba) - 1;
-     */
-class MeshViewPositionMaterial extends ShaderMaterial {
+ * @author Maxime Quiblier / http://github.com/maximeq
+ *
+ */
+class MeshWorldPositionMaterial extends ShaderMaterial {
 
-    constructor(parameters) {
+    displacementMap: Texture | null;
+    displacementScale: number;
+    displacementBias: number;
+    skinning: boolean;
+    isMeshDepthMaterial: boolean;
+    isMeshWorldPositionMaterial: boolean;
+
+    constructor(parameters: ShaderMaterialParameters) {
 
         parameters = parameters || {};
 
         parameters.uniforms = UniformsUtils.merge([
-            ShaderLib.displacementmap
+            ShaderLib.depth.uniforms
         ]);
         parameters.vertexShader = [
 
@@ -31,7 +31,7 @@ class MeshViewPositionMaterial extends ShaderMaterial {
             '#include <logdepthbuf_pars_vertex>',
             '#include <clipping_planes_pars_vertex>',
 
-            'varying vec3 vViewPosition;',
+            'varying vec4 vWorldPosition;',
 
             'void main() {',
 
@@ -45,15 +45,15 @@ class MeshViewPositionMaterial extends ShaderMaterial {
             '#include <logdepthbuf_vertex>',
             '#include <clipping_planes_vertex>',
 
-            'vViewPosition = (viewMatrix * modelMatrix * vec4( transformed, 1.0)).xyz;',
+            'vWorldPosition = modelMatrix * vec4( transformed, 1.0 );',
 
             '}'
         ].join('\n');
 
         parameters.fragmentShader = [
-            'varying vec3 vViewPosition;',
+            'varying vec4 vWorldPosition;',
             'void main() {',
-            'gl_FragColor = vec4(vViewPosition.xyz,1.0);',
+            'gl_FragColor = vWorldPosition;',
             '}',
         ].join('\n');
 
@@ -72,7 +72,11 @@ class MeshViewPositionMaterial extends ShaderMaterial {
         this.skinning = false;
         this.morphTargets = false;
 
+        this.isMeshDepthMaterial = true;
+        this.isMeshWorldPositionMaterial = true;
+
     }
+
 }
 
-export { MeshViewPositionMaterial }
+export { MeshWorldPositionMaterial }

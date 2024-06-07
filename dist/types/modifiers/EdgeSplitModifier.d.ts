@@ -1,4 +1,6 @@
-export class EdgeSplitModifier {
-    modify(geometry: any, cutOffAngle: any, tryKeepNormals?: boolean): any;
+import { BufferGeometry } from 'three';
+declare class EdgeSplitModifier {
+    modify(geometry: BufferGeometry, cutOffAngle: number, tryKeepNormals?: boolean): BufferGeometry;
 }
+export { EdgeSplitModifier };
 //# sourceMappingURL=EdgeSplitModifier.d.ts.map

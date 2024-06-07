@@ -1,0 +1,1 @@
+{"version":3,"file":"RayIntersect.d.ts","sourceRoot":"","sources":["../../../../src/math/coneFrustum/RayIntersect.ts"],"names":[],"mappings":"AAAA,OAAO,EAAO,OAAO,EAAE,MAAM,OAAO,CAAC;AACrC,OAAO,EAAE,WAAW,EAAE,MAAM,eAAe,CAAC;AAE5C,OAAO,QAAQ,OAAO,CAAC;IACnB,UAAU,GAAG;QACT,qBAAqB,CAAC,OAAO,EAAE,WAAW,EAAE,MAAM,EAAE,OAAO,GAAG,IAAI,GAAG,OAAO,GAAG,IAAI,CAAC;KACvF;CACJ"}

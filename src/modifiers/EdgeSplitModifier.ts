@@ -7,7 +7,7 @@ const _C = new Vector3();
 
 class EdgeSplitModifier {
 
-	modify( geometry, cutOffAngle, tryKeepNormals = true ) {
+	modify( geometry: BufferGeometry, cutOffAngle: number, tryKeepNormals = true ) {
 
 		function computeNormals() {
 
@@ -73,11 +73,11 @@ class EdgeSplitModifier {
 		}
 
 
-		function edgeSplitToGroups( indexes, cutOff, firstIndex ) {
+		function edgeSplitToGroups( indexes: number[], cutOff: number, firstIndex: number ) {
 
 			_A.set( normals[ 3 * firstIndex ], normals[ 3 * firstIndex + 1 ], normals[ 3 * firstIndex + 2 ] ).normalize();
 
-			const result = {
+			const result: {splitGroup: number[], currentGroup: number[]} = {
 				splitGroup: [],
 				currentGroup: [ firstIndex ]
 			};
@@ -107,7 +107,7 @@ class EdgeSplitModifier {
 		}
 
 
-		function edgeSplit( indexes, cutOff, original = null ) {
+		function edgeSplit( indexes: number[], cutOff: number, original: number | null = null ) {
 
 			if ( indexes.length === 0 ) return;
 
@@ -149,13 +149,6 @@ class EdgeSplitModifier {
 
 		}
 
-		if ( geometry.isGeometry === true ) {
-
-			console.error( 'THREE.EdgeSplitModifier no longer supports THREE.Geometry. Use BufferGeometry instead.' );
-			return;
-
-		}
-
 		let hadNormals = false;
 		let oldNormals = null;
 
@@ -185,16 +178,16 @@ class EdgeSplitModifier {
 			geometry = BufferGeometryUtils.mergeVertices( geometry );
 		}
 
-		const indexes = geometry.index.array;
+		const indexes: ArrayLike<number> = (geometry.index as BufferAttribute).array;
 		const positions = geometry.getAttribute( 'position' ).array;
 
-		let normals;
-		let pointToIndexMap;
+		let normals: Float32Array;
+		let pointToIndexMap: number[][] = [];
 
 		computeNormals();
 		mapPositionsToIndexes();
 
-		const splitIndexes = [];
+		const splitIndexes: {original: number, indexes: number[]}[] = [];
 
 		for ( const vertexIndexes of pointToIndexMap ) {
 
@@ -206,12 +199,15 @@ class EdgeSplitModifier {
 			geometry.getAttribute( 'position' ).itemSize;
 		const new_nb_indices = old_nb_indices + splitIndexes.length;
 	
-	
-		const newAttributes = {};
+		interface attributeDict {
+			[name: string]: BufferAttribute;
+		}
+		
+		const newAttributes: attributeDict = {};
 		for ( const name of Object.keys( geometry.attributes ) ) {
 
 			const oldAttribute = geometry.attributes[ name ];
-			const newArray = new oldAttribute.array.constructor(new_nb_indices * oldAttribute.itemSize );
+			const newArray = new Float32Array(new_nb_indices * oldAttribute.itemSize );
 			newArray.set( oldAttribute.array );
 			newAttributes[ name ] = new BufferAttribute( newArray, oldAttribute.itemSize, oldAttribute.normalized );
 
@@ -227,10 +223,8 @@ class EdgeSplitModifier {
 			for ( const attribute of Object.values( newAttributes ) ) {
 
 				for ( let j = 0; j < attribute.itemSize; j ++ ) {
-
-					attribute.array[ ( old_nb_indices  + i ) * attribute.itemSize + j ] =
+					(attribute.array as Float32Array)[ ( old_nb_indices  + i ) * attribute.itemSize + j ] =
 						attribute.array[ index * attribute.itemSize + j ];
-
 				}
 
 			}
@@ -267,9 +261,9 @@ class EdgeSplitModifier {
 
 					if ( changedNormals[ i ] === false ) {
 
-						for ( let j = 0; j < 3; j ++ )
-							geometry.attributes.normal.array[ 3 * i + j ] = oldNormals[ 3 * i + j ];
-
+						for ( let j = 0; j < 3; j ++ ) {
+							(geometry.attributes.normal.array as Float32Array)[ 3 * i + j ] = oldNormals[ 3 * i + j ];
+						}
 					}
 
 				}

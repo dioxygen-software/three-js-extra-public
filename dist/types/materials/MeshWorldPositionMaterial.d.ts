@@ -1,19 +1,16 @@
+import { ShaderMaterial, type Texture, type ShaderMaterialParameters } from 'three';
 /**
  * @author Maxime Quiblier / http://github.com/maximeq
  *
  */
-export class MeshWorldPositionMaterial {
-    constructor(parameters: any);
-    displacementMap: any;
+declare class MeshWorldPositionMaterial extends ShaderMaterial {
+    displacementMap: Texture | null;
     displacementScale: number;
     displacementBias: number;
-    wireframe: boolean;
-    wireframeLinewidth: number;
-    fog: boolean;
-    lights: boolean;
     skinning: boolean;
-    morphTargets: boolean;
     isMeshDepthMaterial: boolean;
     isMeshWorldPositionMaterial: boolean;
+    constructor(parameters: ShaderMaterialParameters);
 }
+export { MeshWorldPositionMaterial };
 //# sourceMappingURL=MeshWorldPositionMaterial.d.ts.map

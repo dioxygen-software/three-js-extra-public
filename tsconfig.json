@@ -1,21 +1,23 @@
 {
     "compilerOptions": {
-        "module": "es6",
+        "module": "ESNext",
         "target": "ESNext",
         "moduleResolution": "Bundler",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "allowJs": true,
         "checkJs": true,
-        "outDir": "dist/types",
-        "sourceMap": true,
         "declaration": true,
+        "sourceMap": true,
         "declarationMap": true,
-        "strictNullChecks": true
+        "outDir": "dist/types",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "verbatimModuleSyntax": true
     },
     "include": [
         "src/**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "**/node_modules/*"
     ]
 }

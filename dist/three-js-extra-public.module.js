@@ -795,7 +795,7 @@ class ConeFrustum {
     }
 }
 
-Ray.prototype.intersectsConeFrustum = function () {
+Ray.prototype.intersectConeFrustum = function () {
     const D = new Vector3();
     const target2 = new Vector3();
     const u = new Vector3();
@@ -942,7 +942,7 @@ class Cone {
  * @return The first hit point if any, null otherwise.
  *
  */
-Ray.prototype.intersectsCone = function () {
+Ray.prototype.intersectCone = function () {
     // static variables for the function
     const E = new Vector3();
     const target2 = new Vector3();

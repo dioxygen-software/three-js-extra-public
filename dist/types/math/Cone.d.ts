@@ -26,7 +26,7 @@ export declare class Cone {
 }
 declare module "three" {
     interface Ray {
-        intersectsCone(cone: Cone, target: Vector3): Vector3 | null;
+        intersectCone(cone: Cone, target: Vector3): Vector3 | null;
     }
 }
 //# sourceMappingURL=Cone.d.ts.map

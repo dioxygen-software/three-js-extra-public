@@ -126,7 +126,7 @@
 
             let target = new Vector3();
             const ray = new Ray(new Vector3(params.Ray_O_x, params.Ray_O_y, params.Ray_O_z), new Vector3(params.Ray_D_x, params.Ray_D_y, params.Ray_D_z).normalize());
-            target = ray.intersectsConeFrustum(coneFrustum, target);
+            target = ray.intersectConeFrustum(coneFrustum, target);
             if (target == null) {
                 line.material.color = new Color(0xffa500);
                 line.material.needsUpdate = true;
@@ -163,7 +163,7 @@
             line.geometry = new BufferGeometry().setFromPoints(points);
             
             let target = new Vector3();
-            target = ray.intersectsConeFrustum(coneFrustum, target);
+            target = ray.intersectConeFrustum(coneFrustum, target);
             if (target == null) {
                 line.material.color = new Color(0xffa500);
                 line.material.needsUpdate = true;

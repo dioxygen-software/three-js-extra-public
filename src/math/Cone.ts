@@ -81,7 +81,7 @@ export class Cone {
 
 declare module "three" {
     interface Ray {
-        intersectsCone(cone: Cone, target: Vector3): Vector3 | null;
+        intersectCone(cone: Cone, target: Vector3): Vector3 | null;
     }
 }
 
@@ -103,7 +103,7 @@ declare module "three" {
  * @return The first hit point if any, null otherwise.
  *
  */
-Ray.prototype.intersectsCone = function () {
+Ray.prototype.intersectCone = function () {
     // static variables for the function
     const E = new Vector3();
     const target2 = new Vector3();

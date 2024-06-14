@@ -171,7 +171,7 @@ declare class ConeFrustum {
 
 declare module "three" {
     interface Ray {
-        intersectsConeFrustum(frustum: ConeFrustum, target: Vector3 | null): Vector3 | null;
+        intersectConeFrustum(frustum: ConeFrustum, target: Vector3 | null): Vector3 | null;
     }
 }
 //# sourceMappingURL=RayIntersect.d.ts.map
@@ -203,7 +203,7 @@ declare class Cone {
 }
 declare module "three" {
     interface Ray {
-        intersectsCone(cone: Cone, target: Vector3): Vector3 | null;
+        intersectCone(cone: Cone, target: Vector3): Vector3 | null;
     }
 }
 

@@ -355,9 +355,7 @@ class MeshWorldNormalMaterial extends ShaderMaterial {
         const oldOnBeforeRender = mesh.onBeforeRender;
         mesh.onBeforeRender = function (renderer, scene, camera, geometry, material, group) {
             oldOnBeforeRender.call(this, renderer, scene, camera, geometry, material, group);
-            if (!(this.material instanceof MeshWorldNormalMaterial))
-                throw "MeshWorldNormalMaterial.updateMeshOnBeforeRender: mesh material is not a MeshWorldNormalMaterial";
-            if (this.material.isMeshWorldNormalMaterial)
+            if ("isMeshWorldNormalMaterial" in this.material && this.material.isMeshWorldNormalMaterial)
                 this.material.uniforms.viewMatrixInverse.value.copy(camera.matrixWorld);
         };
     };

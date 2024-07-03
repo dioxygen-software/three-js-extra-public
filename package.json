@@ -1,6 +1,6 @@
 {
   "name": "@dioxygen-software/three-js-extra-public",
-  "version": "1.130.0",
+  "version": "2.130.0",
   "description": "Extra examples for Three JS",
   "main": "dist/three-js-extra-public.module.js",
   "module": "dist/three-js-extra-public.module.js",

@@ -1,4 +1,4 @@
-import { BufferGeometry, Vector3, BoxBufferGeometry, Float32BufferAttribute } from "three"
+import { BufferGeometry, Vector3, BoxGeometry, Float32BufferAttribute } from "three"
 
 export class SpherifiedCubeBufferGeometry extends BufferGeometry {
 
@@ -36,7 +36,7 @@ export class SpherifiedCubeBufferGeometry extends BufferGeometry {
 
         // we create a normal cube and buffer it in our geometry
 
-        const cubeBufferGeometry = new BoxBufferGeometry(
+        const cubeBufferGeometry = new BoxGeometry(
             1,
             1,
             1,

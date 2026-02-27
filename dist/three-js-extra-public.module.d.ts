@@ -1,9 +1,10 @@
-import { IcosahedronBufferGeometry, BufferGeometry, ShaderMaterial, Texture, NormalMapTypes, Vector2, ShaderMaterialParameters, MeshDepthMaterial, MeshDepthMaterialParameters, Mesh, Vector3, Box3 } from 'three';
+import * as three from 'three';
+import { IcosahedronGeometry, BufferGeometry, ShaderMaterial, Texture, NormalMapTypes, Vector2, ShaderMaterialParameters, MeshDepthMaterial, MeshDepthMaterialParameters, Mesh, Vector3, Box3 } from 'three';
 
 /**
  * @author baptistewagner & lucassort
  */
-declare class IcosahedronSphereBufferGeometry extends IcosahedronBufferGeometry {
+declare class IcosahedronSphereGeometry extends IcosahedronGeometry {
     constructor(radius: number, subdivisionsLevel: number);
 }
 
@@ -129,7 +130,7 @@ declare class MeshWorldPositionMaterial extends ShaderMaterial {
 //# sourceMappingURL=MeshWorldPositionMaterial.d.ts.map
 
 declare class EdgeSplitModifier {
-    modify(geometry: BufferGeometry, cutOffAngle: number, tryKeepNormals?: boolean): BufferGeometry;
+    modify(geometry: BufferGeometry, cutOffAngle: number, tryKeepNormals?: boolean): BufferGeometry<three.NormalBufferAttributes, three.BufferGeometryEventMap>;
 }
 //# sourceMappingURL=EdgeSplitModifier.d.ts.map
 
@@ -207,4 +208,4 @@ declare module "three" {
     }
 }
 
-export { Cone, ConeFrustum, EdgeSplitModifier, IcosahedronSphereBufferGeometry, MeshNormalDepthMaterial, MeshRGBADepthMaterial, MeshViewPositionMaterial, MeshWorldNormalMaterial, MeshWorldPositionMaterial, RoundedCubeBufferGeometry, SpherifiedCubeBufferGeometry };
+export { Cone, ConeFrustum, EdgeSplitModifier, IcosahedronSphereGeometry, MeshNormalDepthMaterial, MeshRGBADepthMaterial, MeshViewPositionMaterial, MeshWorldNormalMaterial, MeshWorldPositionMaterial, RoundedCubeBufferGeometry, SpherifiedCubeBufferGeometry };

@@ -1,8 +1,8 @@
-import { Box3, Vector3, Matrix4, BoxBufferGeometry, BufferAttribute } from "three";
+import { Box3, Vector3, Matrix4, BoxGeometry, BufferAttribute } from "three";
 
 const tmpVec = new Vector3(), tmpVec2 = new Vector3();
 const tmpMat = new Matrix4();
-const baseCubePositions = new BoxBufferGeometry(2, 2, 2).toNonIndexed().attributes.position;
+const baseCubePositions = new BoxGeometry(2, 2, 2).toNonIndexed().attributes.position;
 
 /**
  * @author Max Godefroy <max@godefroy.net>

@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, Vector3 } from 'three';
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
 const _A = new Vector3();
 const _B = new Vector3();
@@ -170,12 +170,7 @@ class EdgeSplitModifier {
 
 		if ( geometry.index == null ) {
 
-			if ( BufferGeometryUtils === undefined ) {
-
-				throw 'THREE.EdgeSplitModifier relies on BufferGeometryUtils';
-
-			}
-			geometry = BufferGeometryUtils.mergeVertices( geometry );
+			geometry = mergeVertices( geometry );
 		}
 
 		const indexes: ArrayLike<number> = (geometry.index as BufferAttribute).array;
@@ -195,14 +190,14 @@ class EdgeSplitModifier {
 
 		}
 
-		const old_nb_indices = positions.length / 
+		const old_nb_indices = positions.length /
 			geometry.getAttribute( 'position' ).itemSize;
 		const new_nb_indices = old_nb_indices + splitIndexes.length;
-	
+
 		interface attributeDict {
 			[name: string]: BufferAttribute;
 		}
-		
+
 		const newAttributes: attributeDict = {};
 		for ( const name of Object.keys( geometry.attributes ) ) {
 

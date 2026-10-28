@@ -9,7 +9,7 @@ This repository has no version branch for three.js r130: `main` plays that role.
 
 ## r2.170 (2026-02)
 
-The `main` code, as of 2024-07, for three.js r170. Not included: the `FPSCounter` utility, added to `main` later.
+The `main` code for three.js r170, with the same features.
 
 **Breaking changes**
 - three.js r170.

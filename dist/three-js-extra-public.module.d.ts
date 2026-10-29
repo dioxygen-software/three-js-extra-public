@@ -130,7 +130,7 @@ declare class MeshWorldPositionMaterial extends ShaderMaterial {
 //# sourceMappingURL=MeshWorldPositionMaterial.d.ts.map
 
 declare class EdgeSplitModifier {
-    modify(geometry: BufferGeometry, cutOffAngle: number, tryKeepNormals?: boolean): BufferGeometry<three.NormalBufferAttributes, three.BufferGeometryEventMap>;
+    modify(geometry: BufferGeometry, cutOffAngle: number, tryKeepNormals?: boolean): BufferGeometry<three.NormalBufferAttributes>;
 }
 //# sourceMappingURL=EdgeSplitModifier.d.ts.map
 

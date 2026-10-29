@@ -1,6 +1,6 @@
 {
   "name": "@dioxygen-software/three-js-extra-public",
-  "version": "2.170.1",
+  "version": "2.170.2",
   "description": "Extra examples for Three JS",
   "main": "dist/three-js-extra-public.module.js",
   "module": "dist/three-js-extra-public.module.js",
@@ -11,13 +11,13 @@
     "dev": "npm run build && npm run start"
   },
   "peerDependencies": {
-    "three": ">=0.170.0"
+    "three": "0.170.x"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-typescript": "^11.1.6",
-    "@types/three": ">=0.170.0",
+    "@types/three": "0.170.x",
     "dat.gui": "^0.7.7",
     "rollup": "^3.15.0",
     "rollup-plugin-delete": "^2.0.0",

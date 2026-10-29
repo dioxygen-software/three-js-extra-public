@@ -12,7 +12,8 @@ This repository has no version branch for three.js r130: `main` plays that role.
 The `main` code for three.js r170, with the same features.
 
 **Breaking changes**
-- three.js r170.
+- three.js r170, pinned to `0.170.x` (it was `>=0.170.0`, so builds could bundle code from later three.js
+  releases and emit types that do not exist in r170).
 
 ## main (2024-05 to 2025-01)
 

@@ -47,11 +47,16 @@ class MeshNormalDepthMaterial extends ShaderMaterial {
                 'vProjectionMatrix = projectionMatrix;' + '\n'
                 + '#include <uv_vertex>'
             );
+        // Replaces the colour output and the OPAQUE block after it, which would otherwise overwrite the depth with 1.
+        const colorOutput = /gl_FragColor = vec4\( packNormalToRGB\( normal \), diffuseColor\.a \);\s*#ifdef OPAQUE\s*gl_FragColor\.a = 1\.0;\s*#endif/;
+        if (!colorOutput.test(ShaderLib.normal.fragmentShader)) {
+            throw new Error('MeshNormalDepthMaterial: unexpected ShaderLib.normal fragment shader, the depth cannot be written.');
+        }
         parameters.fragmentShader =
             'varying mat4 vProjectionMatrix;' + '\n' +
             'uniform bool linearize_depth;' + '\n' +
             ShaderLib.normal.fragmentShader.replace(
-                'gl_FragColor = vec4( packNormalToRGB( normal ), opacity );',
+                colorOutput,
                 'float zN = 2.0*gl_FragCoord.z - 1.0;' + '\n'
                 + 'float p23 = vProjectionMatrix[3][2];' + '\n'
                 + 'float k = (vProjectionMatrix[2][2] - 1.0f)/(vProjectionMatrix[2][2] + 1.0f);' + '\n'

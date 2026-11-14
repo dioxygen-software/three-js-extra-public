@@ -15,6 +15,10 @@ The `main` code for three.js r170, with the same features.
 - three.js r170, pinned to `0.170.x` (it was `>=0.170.0`, so builds could bundle code from later three.js
   releases and emit types that do not exist in r170).
 
+**Changes**
+- Fix: `MeshNormalDepthMaterial` writes the depth in alpha, as on `main`. Its shader patch searched for the r130
+  output line, so it wrote the opacity (1 for opaque materials) instead.
+
 ## main (2024-05 to 2025-01)
 
 **Breaking changes**

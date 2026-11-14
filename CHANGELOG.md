@@ -17,6 +17,9 @@ This repository has no version branch for three.js r130: `main` plays that role.
 - `EdgeSplitModifier` in TypeScript, with tests; materials migrated.
 - Fix: `MeshNormalWorldMaterial` no longer throws when it should not.
 - `FPSCounter` utility.
+- `MeshGBufferMaterial`: view space position, packed normal and depth, and uv in a single draw, for a multiple
+  render targets G-buffer (WebGL2 only). It writes what `MeshViewPositionMaterial` and `MeshNormalDepthMaterial`
+  (`linearize_depth` false) write (2.130.2).
 
 ## r2.170
 

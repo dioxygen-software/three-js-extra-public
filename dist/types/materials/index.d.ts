@@ -1,3 +1,4 @@
+export * from "./MeshGBufferMaterial";
 export * from "./MeshNormalDepthMaterial";
 export * from "./MeshRGBADepthMaterial";
 export * from "./MeshViewPositionMaterial";

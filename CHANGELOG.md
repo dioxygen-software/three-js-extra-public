@@ -18,6 +18,8 @@ The `main` code for three.js r170, with the same features.
 **Changes**
 - Fix: `MeshNormalDepthMaterial` writes the depth in alpha, as on `main`. Its shader patch searched for the r130
   output line, so it wrote the opacity (1 for opaque materials) instead.
+- `MeshGBufferMaterial`, as on `main`: view space position, packed normal and depth, and uv in a single draw, for a
+  multiple render targets G-buffer (WebGL2 only) (2.170.4).
 
 ## main (2024-05 to 2025-01)
 
